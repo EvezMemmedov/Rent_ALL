@@ -4,21 +4,27 @@ import { Plus, Star, MoreVertical, Edit, Trash2, Eye, EyeOff, Package } from 'lu
 import { Button } from '@/components/ui/button';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { mockItems } from '@/data/mockData';
+import { useMyItems, useDeleteItem, useUpdateItem } from '@/hooks/useItems';
 
 export default function MyItems() {
-  const [showMenu, setShowMenu] = useState<string | null>(null);
+  const [showMenu, setShowMenu] = useState<number | null>(null);
 
-  // Simulating owner's items (first 3)
-  const myItems = mockItems.slice(0, 3);
+  const { data, isLoading } = useMyItems();
+  const deleteItem = useDeleteItem();
+  const items = data?.items || [];
+
+  const handleDelete = (id: number) => {
+    if (confirm('Bu əşyanı silmək istədiyinizə əminsiniz?')) {
+      deleteItem.mutate(id);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar isAuthenticated={true} userStatus="approved" />
-      
+
       <main className="flex-1 py-8">
         <div className="page-container">
-          {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">My Listed Items</h1>
@@ -32,15 +38,16 @@ export default function MyItems() {
             </Link>
           </div>
 
-          {/* Items */}
-          {myItems.length > 0 ? (
+          {isLoading ? (
+            <p className="text-muted-foreground text-center py-16">Yüklənir...</p>
+          ) : items.length > 0 ? (
             <div className="grid gap-4">
-              {myItems.map((item) => (
+              {items.map((item: any) => (
                 <div key={item.id} className="card-static p-4 md:p-6">
                   <div className="flex flex-col md:flex-row gap-4">
                     <Link to={`/items/${item.id}`}>
-                      <img 
-                        src={item.images[0]} 
+                      <img
+                        src={item.images?.[0] || 'https://via.placeholder.com/160x112'}
                         alt={item.title}
                         className="w-full md:w-40 h-48 md:h-28 rounded-lg object-cover"
                       />
@@ -56,7 +63,7 @@ export default function MyItems() {
                           <p className="text-sm text-muted-foreground capitalize">{item.category}</p>
                         </div>
                         <div className="relative">
-                          <button 
+                          <button
                             onClick={() => setShowMenu(showMenu === item.id ? null : item.id)}
                             className="p-2 rounded-lg hover:bg-muted transition-colors"
                           >
@@ -64,15 +71,22 @@ export default function MyItems() {
                           </button>
                           {showMenu === item.id && (
                             <div className="absolute right-0 top-full mt-1 w-40 card-static shadow-lg py-1 z-10 animate-fade-in">
-                              <button className="w-full px-4 py-2 text-sm text-left hover:bg-muted flex items-center gap-2">
+                              <Link
+                                to={`/items/${item.id}`}
+                                className="w-full px-4 py-2 text-sm text-left hover:bg-muted flex items-center gap-2"
+                              >
                                 <Edit className="w-4 h-4" />
                                 Edit
-                              </button>
+                              </Link>
                               <button className="w-full px-4 py-2 text-sm text-left hover:bg-muted flex items-center gap-2">
                                 <EyeOff className="w-4 h-4" />
                                 Hide Listing
                               </button>
-                              <button className="w-full px-4 py-2 text-sm text-left hover:bg-muted flex items-center gap-2 text-destructive">
+                              <button
+                                onClick={() => handleDelete(item.id)}
+                                className="w-full px-4 py-2 text-sm text-left hover:bg-muted flex items-center gap-2 text-destructive"
+                                disabled={deleteItem.isPending}
+                              >
                                 <Trash2 className="w-4 h-4" />
                                 Delete
                               </button>
@@ -80,22 +94,24 @@ export default function MyItems() {
                           )}
                         </div>
                       </div>
-                      
+
                       <div className="flex flex-wrap items-center gap-4 mt-3">
                         <div className="flex items-center gap-1">
                           <Star className="w-4 h-4 fill-warning text-warning" />
-                          <span className="font-medium">{item.rating}</span>
-                          <span className="text-muted-foreground">({item.reviewCount} reviews)</span>
+                          <span className="font-medium">{item.avgRating || '—'}</span>
+                          <span className="text-muted-foreground">({item.reviews?.length || 0} reviews)</span>
                         </div>
                         <span className="text-muted-foreground">•</span>
                         <span className="font-medium">${item.pricePerDay}/day</span>
+                        <span className="text-muted-foreground">•</span>
+                        <span className={`text-sm font-medium ${item.status === 'available' ? 'text-success' : 'text-warning'}`}>
+                          {item.status === 'available' ? 'Available' : 'Rented'}
+                        </span>
                       </div>
 
                       <div className="flex flex-wrap gap-2 mt-4">
                         <Link to={`/owner-requests/${item.id}`}>
-                          <Button size="sm" variant="outline">
-                            View Requests
-                          </Button>
+                          <Button size="sm" variant="outline">View Requests</Button>
                         </Link>
                         <Link to={`/items/${item.id}`}>
                           <Button size="sm" variant="ghost" className="gap-1">

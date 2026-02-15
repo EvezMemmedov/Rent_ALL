@@ -1,20 +1,45 @@
-# Welcome to your RentALL project
+# RentALL - MVP Version
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+RentALL is a rental marketplace platform.  
+This repository contains the initial MVP version of the project, developed as part of the first development phase.
 
-Follow these steps:
+The goal of this phase is to provide a working base system with frontend and backend integration.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+---
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Project Structure
 
-# Step 3: Install the necessary dependencies.
-npm i
+---
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+## User Flow (MVP)
+
+The following main user flow is fully implemented:
+
+Login → Dashboard → Add Item
+
+This flow works end-to-end between frontend and backend.
+
+---
+
+## Frontend
+
+### Technologies
+- React (Vite)
+- TypeScript
+- Zustand (state management)
+- React Query (data fetching)
+- Tailwind CSS
+
+### Features
+- Landing page
+- Login & Register pages
+- Dashboard
+- Add item page
+- Admin dashboard (basic)
+
+### Run Frontend
+
+```bash
+cd frontend
+npm install
 npm run dev
-```
-

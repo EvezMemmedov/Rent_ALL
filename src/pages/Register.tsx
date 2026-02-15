@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Package, Mail, Lock, Eye, EyeOff, User, Upload, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useRegister } from '@/hooks/useAuth';
 
 type Step = 'info' | 'verification';
 
@@ -17,21 +18,40 @@ export default function Register() {
   const [idFront, setIdFront] = useState<File | null>(null);
   const [idBack, setIdBack] = useState<File | null>(null);
 
+  const register = useRegister();
+
   const handleContinue = (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.password !== formData.confirmPassword) {
+      alert('Şifrələr uyğun gəlmir!');
+      return;
+    }
     setStep('verification');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Navigate to pending approval
-    window.location.href = '/pending-approval';
+    
+    const formDataToSend = new FormData();
+    formDataToSend.append('name', formData.name);
+    formDataToSend.append('email', formData.email);
+    formDataToSend.append('password', formData.password);
+    if (idFront) formDataToSend.append('idCardFront', idFront);
+    if (idBack) formDataToSend.append('idCardBack', idBack);
+
+    register.mutate({
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+      idCardFront: idFront || undefined,
+      idCardBack: idBack || undefined,
+    });
   };
+
 
   return (
     <div className="min-h-screen gradient-bg flex items-center justify-center p-4 py-12">
       <div className="w-full max-w-md animate-slide-up">
-        {/* Logo */}
         <Link to="/" className="flex items-center justify-center gap-2 mb-8">
           <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
             <Package className="w-6 h-6 text-primary-foreground" />
@@ -39,7 +59,6 @@ export default function Register() {
           <span className="text-2xl font-semibold text-foreground">RentAll</span>
         </Link>
 
-        {/* Progress Steps */}
         <div className="flex items-center justify-center gap-3 mb-8">
           <div className={`flex items-center gap-2 ${step === 'info' ? 'text-primary' : 'text-muted-foreground'}`}>
             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step === 'info' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
@@ -56,7 +75,6 @@ export default function Register() {
           </div>
         </div>
 
-        {/* Card */}
         <div className="card-static p-8">
           {step === 'info' ? (
             <>
@@ -67,13 +85,10 @@ export default function Register() {
 
               <form onSubmit={handleContinue} className="space-y-5">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
-                    Full name
-                  </label>
+                  <label className="block text-sm font-medium text-foreground mb-2">Full name</label>
                   <div className="relative">
                     <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <input
-                      id="name"
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -85,13 +100,10 @@ export default function Register() {
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
-                    Email address
-                  </label>
+                  <label className="block text-sm font-medium text-foreground mb-2">Email address</label>
                   <div className="relative">
                     <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <input
-                      id="email"
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -103,13 +115,10 @@ export default function Register() {
                 </div>
 
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
-                    Password
-                  </label>
+                  <label className="block text-sm font-medium text-foreground mb-2">Password</label>
                   <div className="relative">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <input
-                      id="password"
                       type={showPassword ? 'text' : 'password'}
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -120,7 +129,7 @@ export default function Register() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -128,13 +137,10 @@ export default function Register() {
                 </div>
 
                 <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground mb-2">
-                    Confirm password
-                  </label>
+                  <label className="block text-sm font-medium text-foreground mb-2">Confirm password</label>
                   <div className="relative">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <input
-                      id="confirmPassword"
                       type="password"
                       value={formData.confirmPassword}
                       onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
@@ -145,9 +151,7 @@ export default function Register() {
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full" size="lg">
-                  Continue
-                </Button>
+                <Button type="submit" className="w-full" size="lg">Continue</Button>
               </form>
             </>
           ) : (
@@ -157,11 +161,15 @@ export default function Register() {
                 <p className="text-muted-foreground">Upload your ID card to complete registration</p>
               </div>
 
+              {register.isError && (
+                <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm text-center">
+                  {(register.error as any)?.response?.data?.message || 'Qeydiyyat uğursuz oldu.'}
+                </div>
+              )}
+
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    ID Card - Front
-                  </label>
+                  <label className="block text-sm font-medium text-foreground mb-2">ID Card - Front</label>
                   <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-input rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
                     {idFront ? (
                       <div className="flex items-center gap-2 text-primary">
@@ -174,19 +182,12 @@ export default function Register() {
                         <span className="text-sm">Click to upload front of ID</span>
                       </div>
                     )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => setIdFront(e.target.files?.[0] || null)}
-                    />
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => setIdFront(e.target.files?.[0] || null)} />
                   </label>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    ID Card - Back
-                  </label>
+                  <label className="block text-sm font-medium text-foreground mb-2">ID Card - Back</label>
                   <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-input rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
                     {idBack ? (
                       <div className="flex items-center gap-2 text-primary">
@@ -199,26 +200,18 @@ export default function Register() {
                         <span className="text-sm">Click to upload back of ID</span>
                       </div>
                     )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => setIdBack(e.target.files?.[0] || null)}
-                    />
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => setIdBack(e.target.files?.[0] || null)} />
                   </label>
                 </div>
 
                 <p className="text-xs text-muted-foreground text-center">
-                  Your ID is securely stored and only used for verification purposes. 
-                  We'll never share your information.
+                  Your ID is securely stored and only used for verification purposes.
                 </p>
 
                 <div className="flex gap-3">
-                  <Button type="button" variant="outline" className="flex-1" onClick={() => setStep('info')}>
-                    Back
-                  </Button>
-                  <Button type="submit" className="flex-1">
-                    Submit
+                  <Button type="button" variant="outline" className="flex-1" onClick={() => setStep('info')}>Back</Button>
+                  <Button type="submit" className="flex-1" disabled={register.isPending}>
+                    {register.isPending ? 'Göndərilir...' : 'Submit'}
                   </Button>
                 </div>
               </form>
@@ -228,9 +221,7 @@ export default function Register() {
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
               Already have an account?{' '}
-              <Link to="/login" className="text-primary font-medium hover:underline">
-                Sign in
-              </Link>
+              <Link to="/login" className="text-primary font-medium hover:underline">Sign in</Link>
             </p>
           </div>
         </div>

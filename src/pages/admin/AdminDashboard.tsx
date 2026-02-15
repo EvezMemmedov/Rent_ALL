@@ -1,25 +1,70 @@
+import { useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { Users, Package, DollarSign, AlertTriangle, ArrowRight, Clock } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Navbar } from '@/components/layout/Navbar';
-import { mockPendingUsers } from '@/data/mockData';
+import { useAdminReports, usePendingUsers } from '@/hooks/useAdmin';
+import { useAuthStore } from '@/store/authStore';
 import { format } from 'date-fns';
 
-const stats = [
-  { label: 'Total Users', value: '2,453', icon: Users, change: '+12%', positive: true },
-  { label: 'Active Listings', value: '1,287', icon: Package, change: '+8%', positive: true },
-  { label: 'Monthly Revenue', value: '$45,230', icon: DollarSign, change: '+23%', positive: true },
-  { label: 'Pending Verifications', value: mockPendingUsers.length.toString(), icon: AlertTriangle, change: '3 new', positive: false },
-];
-
 export default function AdminDashboard() {
+  const navigate = useNavigate();
+  const { isAdmin, isAuthenticated, user } = useAuthStore();
+
+  // Qoruyucu yoxlanış - Əgər admin deyilsə login səhifəsinə atır
+  useEffect(() => {
+    if (!isAuthenticated || !isAdmin) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, isAdmin, navigate]);
+
+  const { data: reports, isLoading: reportsLoading } = useAdminReports();
+  const { data: pendingData, isLoading: pendingLoading } = usePendingUsers();
+
+  const pendingUsers = pendingData?.users || [];
+
+  const stats = [
+    {
+      label: 'Total Users',
+      value: reportsLoading ? '...' : String(reports?.users?.total || 0),
+      icon: Users,
+      change: `${reports?.users?.pending || 0} pending`,
+      positive: true,
+    },
+    {
+      label: 'Active Listings',
+      value: reportsLoading ? '...' : String(reports?.items?.available || 0),
+      icon: Package,
+      change: `${reports?.items?.rented || 0} rented`,
+      positive: true,
+    },
+    {
+      label: 'Total Revenue',
+      value: reportsLoading ? '...' : `$${reports?.revenue?.total?.toFixed(0) || 0}`,
+      icon: DollarSign,
+      change: `${reports?.rentals?.completed || 0} completed`,
+      positive: true,
+    },
+    {
+      label: 'Pending Verifications',
+      value: reportsLoading ? '...' : String(reports?.users?.pending || 0),
+      icon: AlertTriangle,
+      change: 'Waiting review',
+      positive: false,
+    },
+  ];
+
+  // Əgər hələ yoxlanış gedirsə, boş ekran və ya loading göstər ki, qaçış baş verməsin
+  if (!isAuthenticated || !isAdmin) {
+    return null; 
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      <Navbar isAuthenticated={true} userStatus="approved" isAdmin={true} />
-      
+      <Navbar isAuthenticated={isAuthenticated} userStatus={user?.status} isAdmin={isAdmin} />
+
       <main className="py-8">
         <div className="page-container">
-          {/* Header */}
           <div className="mb-8">
             <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Admin Dashboard</h1>
             <p className="text-muted-foreground">Manage users, listings, and platform settings</p>
@@ -44,7 +89,6 @@ export default function AdminDashboard() {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-8">
-            {/* Pending Verifications */}
             <section>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-foreground">Pending Verifications</h2>
@@ -53,35 +97,42 @@ export default function AdminDashboard() {
                 </Link>
               </div>
               <div className="space-y-3">
-                {mockPendingUsers.map((user) => (
-                  <div key={user.id} className="card-static p-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold">
-                        {user.name.charAt(0)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-foreground">{user.name}</h3>
-                        <p className="text-sm text-muted-foreground truncate">{user.email}</p>
-                      </div>
-                      <div className="text-right">
-                        <span className="status-badge status-pending mb-1">Pending</span>
-                        <p className="text-xs text-muted-foreground flex items-center gap-1 justify-end">
-                          <Clock className="w-3 h-3" />
-                          {format(new Date(user.createdAt), 'MMM d')}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-3 flex gap-2">
-                      <Link to={`/admin/verify-user/${user.id}`} className="flex-1">
-                        <Button size="sm" className="w-full">Review</Button>
-                      </Link>
-                    </div>
+                {pendingLoading ? (
+                  <p className="text-muted-foreground text-sm">Yüklənir...</p>
+                ) : pendingUsers.length === 0 ? (
+                  <div className="card-static p-6 text-center">
+                    <p className="text-muted-foreground text-sm">Gözləyən istifadəçi yoxdur</p>
                   </div>
-                ))}
+                ) : (
+                  pendingUsers.slice(0, 3).map((user: any) => (
+                    <div key={user.id} className="card-static p-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold">
+                          {user.name.charAt(0)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-foreground">{user.name}</h3>
+                          <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+                        </div>
+                        <div className="text-right">
+                          <span className="status-badge status-pending mb-1">Pending</span>
+                          <p className="text-xs text-muted-foreground flex items-center gap-1 justify-end">
+                            <Clock className="w-3 h-3" />
+                            {user.createdAt ? format(new Date(user.createdAt), 'MMM d') : 'N/A'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mt-3">
+                        <Link to={`/admin/verify-user/${user.id}`}>
+                          <Button size="sm" className="w-full">Review</Button>
+                        </Link>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </section>
 
-            {/* Quick Actions */}
             <section>
               <h2 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h2>
               <div className="grid gap-3">
@@ -91,32 +142,10 @@ export default function AdminDashboard() {
                   </div>
                   <div className="flex-1">
                     <h3 className="font-medium text-foreground">Review Pending Users</h3>
-                    <p className="text-sm text-muted-foreground">{mockPendingUsers.length} users waiting for verification</p>
+                    <p className="text-sm text-muted-foreground">{pendingUsers.length} users waiting</p>
                   </div>
                   <ArrowRight className="w-5 h-5 text-muted-foreground" />
                 </Link>
-                
-                <div className="card-elevated p-4 flex items-center gap-4 opacity-60">
-                  <div className="w-10 h-10 rounded-lg bg-info/10 flex items-center justify-center">
-                    <Package className="w-5 h-5 text-info" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-medium text-foreground">Manage Listings</h3>
-                    <p className="text-sm text-muted-foreground">Review and moderate item listings</p>
-                  </div>
-                  <ArrowRight className="w-5 h-5 text-muted-foreground" />
-                </div>
-
-                <div className="card-elevated p-4 flex items-center gap-4 opacity-60">
-                  <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center">
-                    <AlertTriangle className="w-5 h-5 text-destructive" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-medium text-foreground">View Reports</h3>
-                    <p className="text-sm text-muted-foreground">Handle user reports and disputes</p>
-                  </div>
-                  <ArrowRight className="w-5 h-5 text-muted-foreground" />
-                </div>
               </div>
             </section>
           </div>

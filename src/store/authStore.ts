@@ -1,6 +1,24 @@
 import { create } from 'zustand';
 
-export const useAuthStore = create((set) => ({
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+}
+
+interface AuthState {
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isAdmin: boolean;
+  setAuth: (user: User, token: string) => void;
+  clearAuth: () => void;
+  updateUser: (user: User) => void;
+}
+
+export const useAuthStore = create<AuthState>((set) => ({
   user: (() => {
     try {
       const u = localStorage.getItem('rentall_user');
@@ -16,10 +34,15 @@ export const useAuthStore = create((set) => ({
     } catch { return false; }
   })(),
 
-  setAuth: (user, token) => {
+  setAuth: (user: User, token: string) => {
     localStorage.setItem('rentall_token', token);
     localStorage.setItem('rentall_user', JSON.stringify(user));
-    set({ user, token, isAuthenticated: true, isAdmin: user.role === 'admin' });
+    set({
+      user,
+      token,
+      isAuthenticated: true,
+      isAdmin: user.role === 'admin',
+    });
   },
 
   clearAuth: () => {
@@ -28,7 +51,7 @@ export const useAuthStore = create((set) => ({
     set({ user: null, token: null, isAuthenticated: false, isAdmin: false });
   },
 
-  updateUser: (user) => {
+  updateUser: (user: User) => {
     localStorage.setItem('rentall_user', JSON.stringify(user));
     set({ user, isAdmin: user.role === 'admin' });
   },

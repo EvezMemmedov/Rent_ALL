@@ -13,32 +13,48 @@ auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.post("/register")
 def register():
-    data = request.get_json()
+    # FormData ilə işlə
+    name = request.form.get('name') or request.json.get('name') if request.is_json else request.form.get('name')
+    email = request.form.get('email') or (request.json.get('email') if request.is_json else None)
+    password = request.form.get('password') or (request.json.get('password') if request.is_json else None)
 
-    # Validasiya
-    required = ["name", "email", "password"]
-    for field in required:
-        if not data.get(field):
-            return jsonify({"message": f"{field} sahəsi tələb olunur."}), 400
+    if request.is_json:
+        data = request.get_json()
+        name = data.get('name')
+        email = data.get('email')
+        password = data.get('password')
 
-    if len(data["password"]) < 6:
+    if not name or not email or not password:
+        return jsonify({"message": "name, email və password tələb olunur."}), 400
+
+    if len(password) < 6:
         return jsonify({"message": "Şifrə ən azı 6 simvol olmalıdır."}), 400
 
-    # Email unikallıq yoxlaması
-    if User.query.filter_by(email=data["email"].lower()).first():
+    if User.query.filter_by(email=email.lower()).first():
         return jsonify({"message": "Bu email artıq qeydiyyatdan keçib."}), 409
 
-    # İstifadəçi yarat
-    password_hash = bcrypt.generate_password_hash(data["password"]).decode("utf-8")
+    password_hash = bcrypt.generate_password_hash(password).decode("utf-8")
     user = User(
-        name=data["name"].strip(),
-        email=data["email"].lower().strip(),
+        name=name.strip(),
+        email=email.lower().strip(),
         password_hash=password_hash,
-        phone=data.get("phone"),
-        status="pending",  # Admin təsdiqini gözləyir
+        status="pending",
         role="user",
     )
     db.session.add(user)
+    db.session.flush()
+
+    # ID şəkillərini yüklə
+    from app.routes.uploads import save_image
+    if 'idCardFront' in request.files:
+        url, _ = save_image(request.files['idCardFront'], 'ids')
+        if url:
+            user.id_card_front = url
+    if 'idCardBack' in request.files:
+        url, _ = save_image(request.files['idCardBack'], 'ids')
+        if url:
+            user.id_card_back = url
+
     db.session.commit()
 
     return jsonify({
@@ -69,8 +85,8 @@ def login():
         return jsonify({"message": "Hesabınız bloklanmışdır. Admin ilə əlaqə saxlayın."}), 403
 
     # Token yarat
-    access_token = create_access_token(identity=user.id)
-    refresh_token = create_refresh_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
+    refresh_token = create_refresh_token(identity=str(user.id))
 
     return jsonify({
         "message": "Uğurla daxil oldunuz.",

@@ -4,26 +4,41 @@ import { Button } from '@/components/ui/button';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { mockRentals, mockItems } from '@/data/mockData';
-
-const stats = [
-  { label: 'Active Rentals', value: '3', icon: Calendar, trend: '+2 this week' },
-  { label: 'Total Earnings', value: '$2,450', icon: DollarSign, trend: '+$340 this month' },
-  { label: 'Items Listed', value: '5', icon: Package, trend: '2 rented out' },
-  { label: 'Avg Rating', value: '4.8', icon: Star, trend: 'Based on 23 reviews' },
-];
+import { useMyRentals } from '@/hooks/useRentals';
+import { useMyItems } from '@/hooks/useItems';
+import { useAuthStore } from '@/store/authStore';
 
 export default function Dashboard() {
+  const { user } = useAuthStore();
+  const { data: rentalsData, isLoading: rentalsLoading } = useMyRentals();
+  const { data: itemsData, isLoading: itemsLoading } = useMyItems();
+
+  const rentals = rentalsData?.rentals || [];
+  const items = itemsData?.items || [];
+
+  const activeRentals = rentals.filter((r: any) => r.status === 'active' || r.status === 'approved').length;
+  const totalEarnings = rentals
+    .filter((r: any) => r.status === 'completed')
+    .reduce((sum: number, r: any) => sum + r.totalPrice, 0);
+
+  const stats = [
+    { label: 'Active Rentals', value: String(activeRentals), icon: Calendar, trend: 'Hal-hazırda aktiv' },
+    { label: 'Total Earnings', value: `$${totalEarnings.toFixed(0)}`, icon: DollarSign, trend: 'Tamamlanmış icarələr' },
+    { label: 'Items Listed', value: String(items.length), icon: Package, trend: 'Siyahıya alınmış əşyalar' },
+    { label: 'Avg Rating', value: '4.8', icon: Star, trend: 'Based on reviews' },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar isAuthenticated={true} userStatus="approved" />
-      
+
       <main className="flex-1 py-8">
         <div className="page-container">
-          {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground">Welcome back, John</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+                Welcome back, {user?.name || 'User'}
+              </h1>
               <p className="text-muted-foreground mt-1">Here's what's happening with your rentals</p>
             </div>
             <Link to="/add-item">
@@ -61,27 +76,38 @@ export default function Dashboard() {
                 </Link>
               </div>
               <div className="space-y-3">
-                {mockRentals.slice(0, 3).map((rental) => (
-                  <div key={rental.id} className="card-static p-4">
-                    <div className="flex gap-4">
-                      <img 
-                        src={rental.item.images[0]} 
-                        alt={rental.item.title}
-                        className="w-20 h-20 rounded-lg object-cover shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-medium text-foreground line-clamp-1">{rental.item.title}</h3>
-                          <StatusBadge status={rental.status} />
+                {rentalsLoading ? (
+                  <p className="text-muted-foreground text-sm">Yüklənir...</p>
+                ) : rentals.length === 0 ? (
+                  <div className="card-static p-6 text-center">
+                    <p className="text-muted-foreground text-sm">Hələ icarə yoxdur</p>
+                    <Link to="/browse" className="text-primary text-sm hover:underline mt-2 inline-block">
+                      Əşyalara bax
+                    </Link>
+                  </div>
+                ) : (
+                  rentals.slice(0, 3).map((rental: any) => (
+                    <div key={rental.id} className="card-static p-4">
+                      <div className="flex gap-4">
+                        <img
+                          src={rental.item?.images?.[0] || 'https://via.placeholder.com/80'}
+                          alt={rental.item?.title}
+                          className="w-20 h-20 rounded-lg object-cover shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <h3 className="font-medium text-foreground line-clamp-1">{rental.item?.title}</h3>
+                            <StatusBadge status={rental.status} />
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {rental.startDate} - {rental.endDate}
+                          </p>
+                          <p className="text-sm font-medium text-foreground mt-2">${rental.totalPrice}</p>
                         </div>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {new Date(rental.startDate).toLocaleDateString()} - {new Date(rental.endDate).toLocaleDateString()}
-                        </p>
-                        <p className="text-sm font-medium text-foreground mt-2">${rental.totalPrice}</p>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </section>
 
@@ -94,28 +120,39 @@ export default function Dashboard() {
                 </Link>
               </div>
               <div className="space-y-3">
-                {mockItems.slice(0, 3).map((item) => (
-                  <div key={item.id} className="card-static p-4">
-                    <div className="flex gap-4">
-                      <img 
-                        src={item.images[0]} 
-                        alt={item.title}
-                        className="w-20 h-20 rounded-lg object-cover shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-medium text-foreground line-clamp-1">{item.title}</h3>
-                          <div className="flex items-center gap-1 shrink-0">
-                            <Star className="w-4 h-4 fill-warning text-warning" />
-                            <span className="text-sm font-medium">{item.rating}</span>
+                {itemsLoading ? (
+                  <p className="text-muted-foreground text-sm">Yüklənir...</p>
+                ) : items.length === 0 ? (
+                  <div className="card-static p-6 text-center">
+                    <p className="text-muted-foreground text-sm">Hələ əşya yoxdur</p>
+                    <Link to="/add-item" className="text-primary text-sm hover:underline mt-2 inline-block">
+                      Əşya əlavə et
+                    </Link>
+                  </div>
+                ) : (
+                  items.slice(0, 3).map((item: any) => (
+                    <div key={item.id} className="card-static p-4">
+                      <div className="flex gap-4">
+                        <img
+                          src={item.images?.[0] || 'https://via.placeholder.com/80'}
+                          alt={item.title}
+                          className="w-20 h-20 rounded-lg object-cover shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <h3 className="font-medium text-foreground line-clamp-1">{item.title}</h3>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <Star className="w-4 h-4 fill-warning text-warning" />
+                              <span className="text-sm font-medium">{item.avgRating || '—'}</span>
+                            </div>
                           </div>
+                          <p className="text-sm text-muted-foreground mt-1 capitalize">{item.category}</p>
+                          <p className="text-sm font-medium text-foreground mt-2">${item.pricePerDay}/day</p>
                         </div>
-                        <p className="text-sm text-muted-foreground mt-1 capitalize">{item.category}</p>
-                        <p className="text-sm font-medium text-foreground mt-2">${item.pricePerDay}/day</p>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </section>
           </div>

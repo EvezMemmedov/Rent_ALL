@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { ItemCard } from '@/components/ui/ItemCard';
-import { mockItems } from '@/data/mockData';
+import { useItems } from '@/hooks/useItems';
 import type { ItemCategory } from '@/types';
 
 const categories: { value: ItemCategory | 'all'; label: string }[] = [
@@ -30,37 +30,36 @@ export default function Browse() {
   const [selectedCategory, setSelectedCategory] = useState<ItemCategory | 'all'>('all');
   const [selectedPrice, setSelectedPrice] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [sortBy, setSortBy] = useState('newest');
 
-  const filteredItems = mockItems.filter((item) => {
-    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
-    
-    let matchesPrice = true;
-    if (selectedPrice !== 'all') {
-      const price = item.pricePerDay;
-      if (selectedPrice === '0-50') matchesPrice = price < 50;
-      else if (selectedPrice === '50-100') matchesPrice = price >= 50 && price < 100;
-      else if (selectedPrice === '100-200') matchesPrice = price >= 100 && price < 200;
-      else if (selectedPrice === '200+') matchesPrice = price >= 200;
-    }
-    
-    return matchesSearch && matchesCategory && matchesPrice;
+  const getPriceParams = () => {
+    if (selectedPrice === '0-50') return { minPrice: 0, maxPrice: 50 };
+    if (selectedPrice === '50-100') return { minPrice: 50, maxPrice: 100 };
+    if (selectedPrice === '100-200') return { minPrice: 100, maxPrice: 200 };
+    if (selectedPrice === '200+') return { minPrice: 200 };
+    return {};
+  };
+
+  const { data, isLoading, isError } = useItems({
+    search: searchQuery || undefined,
+    category: selectedCategory !== 'all' ? selectedCategory : undefined,
+    sortBy,
+    ...getPriceParams(),
   });
+
+  const items = data?.items || [];
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar isAuthenticated={true} userStatus="approved" />
-      
+
       <main className="flex-1 py-8">
         <div className="page-container">
-          {/* Header */}
           <div className="mb-8">
             <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Browse Items</h1>
             <p className="text-muted-foreground">Discover items available for rent near you</p>
           </div>
 
-          {/* Search & Filters */}
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -74,76 +73,44 @@ export default function Browse() {
             </div>
             <div className="relative flex-1 md:max-w-xs">
               <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Location"
-                className="input-field pl-11 pr-4"
-              />
+              <input type="text" placeholder="Location" className="input-field pl-11 pr-4" />
             </div>
-            <Button 
-              variant="outline" 
-              className="gap-2 md:w-auto"
-              onClick={() => setShowFilters(!showFilters)}
-            >
+            <Button variant="outline" className="gap-2 md:w-auto" onClick={() => setShowFilters(!showFilters)}>
               <SlidersHorizontal className="w-4 h-4" />
               Filters
             </Button>
           </div>
 
-          {/* Filter Panel */}
           {showFilters && (
             <div className="card-static p-4 mb-6 animate-fade-in">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-medium text-foreground">Filters</h3>
-                <button 
-                  onClick={() => setShowFilters(false)}
-                  className="text-muted-foreground hover:text-foreground"
-                >
+                <button onClick={() => setShowFilters(false)} className="text-muted-foreground hover:text-foreground">
                   <X className="w-5 h-5" />
                 </button>
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">Category</label>
-                  <select 
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value as ItemCategory | 'all')}
-                    className="input-field"
-                  >
-                    {categories.map((cat) => (
-                      <option key={cat.value} value={cat.value}>{cat.label}</option>
-                    ))}
+                  <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value as ItemCategory | 'all')} className="input-field">
+                    {categories.map((cat) => <option key={cat.value} value={cat.value}>{cat.label}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">Price Range</label>
-                  <select 
-                    value={selectedPrice}
-                    onChange={(e) => setSelectedPrice(e.target.value)}
-                    className="input-field"
-                  >
-                    {priceRanges.map((range) => (
-                      <option key={range.value} value={range.value}>{range.label}</option>
-                    ))}
+                  <select value={selectedPrice} onChange={(e) => setSelectedPrice(e.target.value)} className="input-field">
+                    {priceRanges.map((range) => <option key={range.value} value={range.value}>{range.label}</option>)}
                   </select>
                 </div>
               </div>
               <div className="flex gap-2 mt-4">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => {
-                    setSelectedCategory('all');
-                    setSelectedPrice('all');
-                  }}
-                >
+                <Button variant="outline" size="sm" onClick={() => { setSelectedCategory('all'); setSelectedPrice('all'); }}>
                   Clear All
                 </Button>
               </div>
             </div>
           )}
 
-          {/* Category Pills */}
           <div className="flex flex-wrap gap-2 mb-6">
             {categories.map((cat) => (
               <button
@@ -160,23 +127,32 @@ export default function Browse() {
             ))}
           </div>
 
-          {/* Results */}
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm text-muted-foreground">
-              {filteredItems.length} items found
+              {isLoading ? 'Yüklənir...' : `${items.length} items found`}
             </p>
-            <select className="text-sm border border-input rounded-lg px-3 py-2 bg-background">
-              <option>Most Relevant</option>
-              <option>Price: Low to High</option>
-              <option>Price: High to Low</option>
-              <option>Highest Rated</option>
+            <select
+              className="text-sm border border-input rounded-lg px-3 py-2 bg-background"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="newest">Most Relevant</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
             </select>
           </div>
 
-          {/* Items Grid */}
-          {filteredItems.length > 0 ? (
+          {isLoading ? (
+            <div className="text-center py-16">
+              <p className="text-muted-foreground">Yüklənir...</p>
+            </div>
+          ) : isError ? (
+            <div className="text-center py-16">
+              <p className="text-destructive">Xəta baş verdi. Yenidən cəhd edin.</p>
+            </div>
+          ) : items.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredItems.map((item) => (
+              {items.map((item: any) => (
                 <ItemCard key={item.id} item={item} />
               ))}
             </div>

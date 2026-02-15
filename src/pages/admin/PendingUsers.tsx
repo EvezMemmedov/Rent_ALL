@@ -2,17 +2,19 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft, Clock, Mail, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Navbar } from '@/components/layout/Navbar';
-import { mockPendingUsers } from '@/data/mockData';
+import { usePendingUsers } from '@/hooks/useAdmin';
 import { format } from 'date-fns';
 
 export default function PendingUsers() {
+  const { data, isLoading } = usePendingUsers();
+  const pendingUsers = data?.users || [];
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar isAuthenticated={true} userStatus="approved" isAdmin={true} />
-      
+
       <main className="py-8">
         <div className="page-container max-w-4xl">
-          {/* Header */}
           <Link to="/admin" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
             <ChevronLeft className="w-4 h-4" />
             Back to Dashboard
@@ -23,10 +25,11 @@ export default function PendingUsers() {
             <p className="text-muted-foreground">Review and verify user ID documents</p>
           </div>
 
-          {/* Users List */}
-          {mockPendingUsers.length > 0 ? (
+          {isLoading ? (
+            <p className="text-muted-foreground text-center py-16">Yüklənir...</p>
+          ) : pendingUsers.length > 0 ? (
             <div className="space-y-4">
-              {mockPendingUsers.map((user) => (
+              {pendingUsers.map((user: any) => (
                 <div key={user.id} className="card-static p-6">
                   <div className="flex flex-col md:flex-row md:items-center gap-4">
                     <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xl font-semibold shrink-0">
@@ -50,31 +53,6 @@ export default function PendingUsers() {
                     </div>
                   </div>
 
-                  {/* ID Preview */}
-                  <div className="grid sm:grid-cols-2 gap-4 mt-4">
-                    <div>
-                      <p className="text-sm font-medium text-foreground mb-2">ID Card - Front</p>
-                      <div className="aspect-[3/2] rounded-lg bg-muted overflow-hidden">
-                        <img 
-                          src={user.idCardFront} 
-                          alt="ID Front"
-                          className="w-full h-full object-cover blur-sm hover:blur-none transition-all cursor-pointer"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground mb-2">ID Card - Back</p>
-                      <div className="aspect-[3/2] rounded-lg bg-muted overflow-hidden">
-                        <img 
-                          src={user.idCardBack} 
-                          alt="ID Back"
-                          className="w-full h-full object-cover blur-sm hover:blur-none transition-all cursor-pointer"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
                   <div className="flex gap-3 mt-6 pt-4 border-t border-border">
                     <Link to={`/admin/verify-user/${user.id}`}>
                       <Button className="gap-2">

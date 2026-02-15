@@ -12,11 +12,10 @@ class User(db.Model):
     phone = db.Column(db.String(20), nullable=True)
     avatar = db.Column(db.String(255), nullable=True)
     bio = db.Column(db.Text, nullable=True)
+    id_card_front = db.Column(db.String(255), nullable=True)
+    id_card_back = db.Column(db.String(255), nullable=True)
 
-    # Role: "user" | "admin"
     role = db.Column(db.String(20), nullable=False, default="user")
-
-    # Status: "pending" | "approved" | "blocked"
     status = db.Column(db.String(20), nullable=False, default="pending")
 
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
@@ -26,7 +25,6 @@ class User(db.Model):
         onupdate=lambda: datetime.now(timezone.utc),
     )
 
-    # Relations
     items = db.relationship("Item", back_populates="owner", lazy="dynamic",
                             foreign_keys="Item.owner_id")
     rentals_as_renter = db.relationship("Rental", back_populates="renter", lazy="dynamic",
@@ -45,6 +43,8 @@ class User(db.Model):
             "role": self.role,
             "status": self.status,
             "createdAt": self.created_at.isoformat() if self.created_at else None,
+            "idCardFront": self.id_card_front,
+            "idCardBack": self.id_card_back,
         }
         return data
 

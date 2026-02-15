@@ -1,31 +1,33 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Star, MapPin, Calendar, Clock, User, ChevronLeft, ChevronRight, Shield, MessageCircle } from 'lucide-react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Star, MapPin, Calendar, ChevronLeft, ChevronRight, Shield, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { mockItems } from '@/data/mockData';
+import { useItem } from '@/hooks/useItems';
+import { useCreateRental } from '@/hooks/useRentals';
 import { format, addDays, eachDayOfInterval, isSameDay } from 'date-fns';
 
 export default function ItemDetail() {
   const { id } = useParams();
-  const item = mockItems.find(i => i.id === id) || mockItems[0];
-  
+  const navigate = useNavigate();
+  const { data, isLoading } = useItem(id!);
+  const createRental = useCreateRental();
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedStartDate, setSelectedStartDate] = useState<Date | null>(null);
   const [selectedEndDate, setSelectedEndDate] = useState<Date | null>(null);
   const [showRequestModal, setShowRequestModal] = useState(false);
+  const [message, setMessage] = useState('');
 
+  const item = data?.item;
   const today = new Date();
-  const calendarDays = eachDayOfInterval({
-    start: today,
-    end: addDays(today, 30),
-  });
+  const calendarDays = eachDayOfInterval({ start: today, end: addDays(today, 30) });
 
-  const totalDays = selectedStartDate && selectedEndDate 
-    ? Math.ceil((selectedEndDate.getTime() - selectedStartDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+  const totalDays = selectedStartDate && selectedEndDate
+    ? Math.ceil((selectedEndDate.getTime() - selectedStartDate.getTime()) / (1000 * 60 * 60 * 24))
     : 0;
-  const totalPrice = totalDays * item.pricePerDay;
+  const totalPrice = totalDays * (item?.pricePerDay || 0);
 
   const handleDateClick = (date: Date) => {
     if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
@@ -45,39 +47,78 @@ export default function ItemDetail() {
     return date >= selectedStartDate && date <= selectedEndDate;
   };
 
+  const handleSendRequest = () => {
+    if (!selectedStartDate || !selectedEndDate || !item) return;
+    createRental.mutate(
+      {
+        itemId: item.id,
+        startDate: format(selectedStartDate, 'yyyy-MM-dd'),
+        endDate: format(selectedEndDate, 'yyyy-MM-dd'),
+        message,
+      },
+      {
+        onSuccess: () => {
+          setShowRequestModal(false);
+          navigate('/my-rentals');
+        },
+      }
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Navbar isAuthenticated={true} userStatus="approved" />
+        <main className="flex-1 flex items-center justify-center">
+          <p className="text-muted-foreground">Yüklənir...</p>
+        </main>
+      </div>
+    );
+  }
+
+  if (!item) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Navbar isAuthenticated={true} userStatus="approved" />
+        <main className="flex-1 flex items-center justify-center">
+          <p className="text-destructive">Əşya tapılmadı.</p>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar isAuthenticated={true} userStatus="approved" />
-      
+
       <main className="flex-1 py-8">
         <div className="page-container">
-          {/* Breadcrumb */}
           <Link to="/browse" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
             <ChevronLeft className="w-4 h-4" />
             Back to Browse
           </Link>
 
           <div className="grid lg:grid-cols-5 gap-8">
-            {/* Left Column - Images & Details */}
+            {/* Left Column */}
             <div className="lg:col-span-3 space-y-6">
               {/* Image Gallery */}
               <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-muted">
                 <img
-                  src={item.images[currentImageIndex]}
+                  src={item.images?.[currentImageIndex] || 'https://via.placeholder.com/800x500'}
                   alt={item.title}
                   className="w-full h-full object-cover"
                 />
-                {item.images.length > 1 && (
+                {item.images?.length > 1 && (
                   <>
                     <button
                       onClick={() => setCurrentImageIndex(i => i === 0 ? item.images.length - 1 : i - 1)}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-white transition-colors"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg"
                     >
                       <ChevronLeft className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => setCurrentImageIndex(i => i === item.images.length - 1 ? 0 : i + 1)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-white transition-colors"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg"
                     >
                       <ChevronRight className="w-5 h-5" />
                     </button>
@@ -94,13 +135,15 @@ export default function ItemDetail() {
                     </span>
                     <h1 className="text-2xl md:text-3xl font-bold text-foreground">{item.title}</h1>
                   </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <Star className="w-5 h-5 fill-warning text-warning" />
-                    <span className="font-semibold">{item.rating}</span>
-                    <span className="text-muted-foreground">({item.reviewCount} reviews)</span>
-                  </div>
+                  {item.avgRating && (
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Star className="w-5 h-5 fill-warning text-warning" />
+                      <span className="font-semibold">{item.avgRating}</span>
+                      <span className="text-muted-foreground">({item.reviews?.length || 0} reviews)</span>
+                    </div>
+                  )}
                 </div>
-                
+
                 <div className="flex items-center gap-2 text-muted-foreground mb-6">
                   <MapPin className="w-4 h-4" />
                   <span>{item.location}</span>
@@ -113,17 +156,15 @@ export default function ItemDetail() {
               <div className="card-static p-5">
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xl font-semibold">
-                    {item.ownerName.charAt(0)}
+                    {item.owner?.name?.charAt(0) || '?'}
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-foreground">{item.ownerName}</h3>
+                    <h3 className="font-semibold text-foreground">{item.owner?.name}</h3>
                     <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
                       <span className="flex items-center gap-1">
                         <Shield className="w-4 h-4 text-success" />
                         Verified Owner
                       </span>
-                      <span>•</span>
-                      <span>Member since 2023</span>
                     </div>
                   </div>
                   <Button variant="outline" size="sm" className="gap-2">
@@ -142,7 +183,6 @@ export default function ItemDetail() {
                   <span className="text-muted-foreground">/ day</span>
                 </div>
 
-                {/* Calendar */}
                 <div className="mb-6">
                   <h3 className="font-medium text-foreground mb-3 flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
@@ -154,29 +194,22 @@ export default function ItemDetail() {
                     ))}
                   </div>
                   <div className="grid grid-cols-7 gap-1">
-                    {calendarDays.slice(0, 28).map((date) => {
-                      const isSelected = isDateSelected(date);
-                      const isStart = selectedStartDate && isSameDay(date, selectedStartDate);
-                      const isEnd = selectedEndDate && isSameDay(date, selectedEndDate);
-                      
-                      return (
-                        <button
-                          key={date.toISOString()}
-                          onClick={() => handleDateClick(date)}
-                          className={`
-                            py-2 text-sm rounded-lg transition-colors
-                            ${isSelected ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}
-                            ${isStart || isEnd ? 'font-semibold' : ''}
-                          `}
-                        >
-                          {format(date, 'd')}
-                        </button>
-                      );
-                    })}
+                    {calendarDays.slice(0, 28).map((date) => (
+                      <button
+                        key={date.toISOString()}
+                        onClick={() => handleDateClick(date)}
+                        className={`py-2 text-sm rounded-lg transition-colors ${
+                          isDateSelected(date)
+                            ? 'bg-primary text-primary-foreground'
+                            : 'hover:bg-muted'
+                        }`}
+                      >
+                        {format(date, 'd')}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                {/* Selected Dates Summary */}
                 {selectedStartDate && (
                   <div className="bg-muted/50 rounded-lg p-4 mb-6">
                     <div className="flex justify-between text-sm mb-2">
@@ -204,13 +237,13 @@ export default function ItemDetail() {
                   </div>
                 )}
 
-                <Button 
-                  className="w-full" 
+                <Button
+                  className="w-full"
                   size="lg"
-                  disabled={!selectedStartDate || !selectedEndDate}
+                  disabled={!selectedStartDate || !selectedEndDate || item.status !== 'available'}
                   onClick={() => setShowRequestModal(true)}
                 >
-                  Request to Rent
+                  {item.status !== 'available' ? 'Not Available' : 'Request to Rent'}
                 </Button>
 
                 <p className="text-xs text-muted-foreground text-center mt-3">
@@ -227,10 +260,8 @@ export default function ItemDetail() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/50 backdrop-blur-sm animate-fade-in">
           <div className="card-static w-full max-w-md p-6 animate-scale-in">
             <h2 className="text-xl font-bold text-foreground mb-2">Confirm Rental Request</h2>
-            <p className="text-muted-foreground mb-6">
-              You're requesting to rent {item.title}
-            </p>
-            
+            <p className="text-muted-foreground mb-6">You're requesting to rent {item.title}</p>
+
             <div className="bg-muted/50 rounded-lg p-4 mb-6">
               <div className="flex justify-between text-sm mb-2">
                 <span className="text-muted-foreground">Dates</span>
@@ -248,12 +279,20 @@ export default function ItemDetail() {
               </div>
             </div>
 
+            {createRental.isError && (
+              <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                {(createRental.error as any)?.response?.data?.message || 'Xəta baş verdi.'}
+              </div>
+            )}
+
             <div className="mb-6">
               <label className="block text-sm font-medium text-foreground mb-2">
                 Message to owner (optional)
               </label>
               <textarea
                 rows={3}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
                 placeholder="Introduce yourself and explain why you'd like to rent this item..."
                 className="input-field resize-none"
               />
@@ -263,8 +302,8 @@ export default function ItemDetail() {
               <Button variant="outline" className="flex-1" onClick={() => setShowRequestModal(false)}>
                 Cancel
               </Button>
-              <Button className="flex-1" onClick={() => setShowRequestModal(false)}>
-                Send Request
+              <Button className="flex-1" onClick={handleSendRequest} disabled={createRental.isPending}>
+                {createRental.isPending ? 'Göndərilir...' : 'Send Request'}
               </Button>
             </div>
           </div>
