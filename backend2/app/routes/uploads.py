@@ -14,7 +14,6 @@ def allowed_file(filename):
 
 
 def save_image(file, subfolder="items"):
-    """Şəkili yüklə, ölçüsünü optimallaşdır və saxla."""
     if not allowed_file(file.filename):
         return None, "Yalnız JPG, PNG, WEBP, GIF faylları qəbul olunur."
 
@@ -27,11 +26,8 @@ def save_image(file, subfolder="items"):
 
     filepath = os.path.join(subfolder_path, filename)
 
-    # Pillow ilə ölçü optimallaşdırması
     img = Image.open(file)
     img = img.convert("RGB")
-
-    # Maksimum 1200x1200
     max_size = (1200, 1200)
     img.thumbnail(max_size, Image.LANCZOS)
     img.save(filepath, optimize=True, quality=85)
@@ -42,7 +38,6 @@ def save_image(file, subfolder="items"):
 @uploads_bp.post("/image")
 @jwt_required()
 def upload_image():
-    """Tək şəkil yüklə."""
     if "file" not in request.files:
         return jsonify({"message": "Fayl tapılmadı."}), 400
 
@@ -50,7 +45,7 @@ def upload_image():
     if file.filename == "":
         return jsonify({"message": "Fayl seçilməyib."}), 400
 
-    subfolder = request.form.get("type", "items")  # "items" | "avatars"
+    subfolder = request.form.get("type", "items")
     url, error = save_image(file, subfolder)
 
     if error:
@@ -62,7 +57,6 @@ def upload_image():
 @uploads_bp.post("/images")
 @jwt_required()
 def upload_multiple_images():
-    """Çox şəkil yüklə (maksimum 10)."""
     files = request.files.getlist("files")
 
     if not files:
@@ -82,8 +76,22 @@ def upload_multiple_images():
     return jsonify({"urls": urls, "message": f"{len(urls)} şəkil yükləndi."}), 201
 
 
-@uploads_bp.get("/<subfolder>/<filename>")
-def serve_file(subfolder, filename):
-    """Yüklənmiş faylı göstər."""
-    upload_folder = current_app.config["UPLOAD_FOLDER"]
-    return send_from_directory(os.path.join(upload_folder, subfolder), filename)
+@uploads_bp.get("/ids/<filename>")
+def serve_id_file(filename):
+    upload_folder = os.path.abspath(current_app.config["UPLOAD_FOLDER"])
+    ids_path = os.path.join(upload_folder, "ids")
+    return send_from_directory(ids_path, filename)
+
+
+@uploads_bp.get("/items/<filename>")
+def serve_item_file(filename):
+    upload_folder = os.path.abspath(current_app.config["UPLOAD_FOLDER"])
+    items_path = os.path.join(upload_folder, "items")
+    return send_from_directory(items_path, filename)
+
+
+@uploads_bp.get("/avatars/<filename>")
+def serve_avatar_file(filename):
+    upload_folder = os.path.abspath(current_app.config["UPLOAD_FOLDER"])
+    avatars_path = os.path.join(upload_folder, "avatars")
+    return send_from_directory(avatars_path, filename)

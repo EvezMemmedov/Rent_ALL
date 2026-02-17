@@ -40,9 +40,9 @@ export function useRegister() {
       formData.append('password', data.password);
       if (data.idCardFront) formData.append('idCardFront', data.idCardFront);
       if (data.idCardBack) formData.append('idCardBack', data.idCardBack);
-      
+
       const res = await api.post('/auth/register', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       return res.data;
     },
@@ -63,7 +63,6 @@ export function useLogout() {
 
 export function useMe() {
   const { token } = useAuthStore();
-
   return useQuery({
     queryKey: ['me'],
     queryFn: async () => {

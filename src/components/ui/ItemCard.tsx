@@ -1,18 +1,20 @@
 import { Star, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import type { Item } from '@/types';
 
 interface ItemCardProps {
-  item: Item;
+  item: any;
 }
 
 export function ItemCard({ item }: ItemCardProps) {
+  const rating = item.avgRating || item.rating || 0;
+  const image = item.images?.[0] || '/placeholder.svg';
+
   return (
     <Link to={`/items/${item.id}`} className="block">
       <div className="card-elevated overflow-hidden group">
         <div className="aspect-[4/3] relative overflow-hidden">
-          <img 
-            src={item.images[0] || '/placeholder.svg'} 
+          <img
+            src={image}
             alt={item.title}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
@@ -27,7 +29,9 @@ export function ItemCard({ item }: ItemCardProps) {
             <h3 className="font-semibold text-foreground line-clamp-1">{item.title}</h3>
             <div className="flex items-center gap-1 shrink-0">
               <Star className="w-4 h-4 fill-warning text-warning" />
-              <span className="text-sm font-medium">{item.rating.toFixed(1)}</span>
+              <span className="text-sm font-medium">
+                {rating ? Number(rating).toFixed(1) : '—'}
+              </span>
             </div>
           </div>
           <div className="flex items-center gap-1 text-muted-foreground text-sm mb-3">

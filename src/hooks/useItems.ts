@@ -28,12 +28,12 @@ export function useMyItems() {
   });
 }
 
-export function useItem(id: string) {
+export function useItem(id: string | number) {
   return useQuery({
     queryKey: ['item', id],
     queryFn: async () => {
       const res = await api.get(`/items/${id}`);
-      return res.data.item;
+      return res.data;
     },
     enabled: !!id,
   });
@@ -53,16 +53,17 @@ export function useCreateItem() {
   });
 }
 
-export function useUpdateItem() {
+export function useUpdateItem(id: number) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+    mutationFn: async (data: any) => {
       const res = await api.put(`/items/${id}`, data);
       return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['items'] });
       queryClient.invalidateQueries({ queryKey: ['my-items'] });
+      queryClient.invalidateQueries({ queryKey: ['item', id] });
     },
   });
 }
@@ -70,7 +71,7 @@ export function useUpdateItem() {
 export function useDeleteItem() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async (id: number) => {
       const res = await api.delete(`/items/${id}`);
       return res.data;
     },

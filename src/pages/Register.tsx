@@ -31,14 +31,6 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const formDataToSend = new FormData();
-    formDataToSend.append('name', formData.name);
-    formDataToSend.append('email', formData.email);
-    formDataToSend.append('password', formData.password);
-    if (idFront) formDataToSend.append('idCardFront', idFront);
-    if (idBack) formDataToSend.append('idCardBack', idBack);
-
     register.mutate({
       name: formData.name,
       email: formData.email,

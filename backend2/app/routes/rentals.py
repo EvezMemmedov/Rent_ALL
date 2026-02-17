@@ -14,7 +14,7 @@ rentals_bp = Blueprint("rentals", __name__)
 @approved_required
 def create_rental():
     """İcarə sorğusu göndər."""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     data = request.get_json()
 
     required = ["itemId", "startDate", "endDate"]
@@ -71,7 +71,7 @@ def create_rental():
 @approved_required
 def my_rentals():
     """Mənim icarələrim (renter olaraq)."""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     rentals = (
         Rental.query
         .filter_by(renter_id=user_id)
@@ -88,7 +88,7 @@ def my_rentals():
 @approved_required
 def owner_requests(item_id):
     """Sahibin əşyasına gələn icarə sorğuları."""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     item = Item.query.get_or_404(item_id)
 
     if item.owner_id != user_id:
@@ -110,7 +110,7 @@ def owner_requests(item_id):
 @approved_required
 def update_rental_status(rental_id):
     """İcarə sorğusunun statusunu dəyiş (approve/reject/cancel)."""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     rental = Rental.query.get_or_404(rental_id)
     data = request.get_json()
     new_status = data.get("status")

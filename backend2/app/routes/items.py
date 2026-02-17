@@ -64,7 +64,7 @@ def browse_items():
 @approved_required
 def my_items():
     """Cari istifadəçinin öz əşyaları."""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     items = Item.query.filter_by(owner_id=user_id).order_by(Item.created_at.desc()).all()
     return jsonify({"items": [item.to_dict() for item in items]}), 200
 
@@ -91,7 +91,7 @@ def get_item(item_id):
 @approved_required
 def create_item():
     """Yeni əşya əlavə et."""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     data = request.get_json()
 
     required = ["title", "pricePerDay", "category"]
@@ -121,7 +121,7 @@ def create_item():
 @approved_required
 def update_item(item_id):
     """Əşyanı yenilə (yalnız sahibi edə bilər)."""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     item = Item.query.get_or_404(item_id)
 
     if item.owner_id != user_id:
@@ -154,7 +154,7 @@ def update_item(item_id):
 @approved_required
 def delete_item(item_id):
     """Əşyanı sil (yalnız sahibi edə bilər)."""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     item = Item.query.get_or_404(item_id)
 
     if item.owner_id != user_id:
