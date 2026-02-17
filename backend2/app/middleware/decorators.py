@@ -9,7 +9,7 @@ def admin_required(fn):
         user_id = int(get_jwt_identity())
         user = User.query.get(user_id)
         if not user or user.role != "admin":
-            return jsonify({"message": "Bu əməliyyat yalnız adminlər üçündür."}), 403
+            return jsonify({"message": "This operation is for admins only."}), 403
         return fn(*args, **kwargs)
     return wrapper
 
@@ -19,10 +19,10 @@ def approved_required(fn):
         user_id = int(get_jwt_identity())
         user = User.query.get(user_id)
         if not user:
-            return jsonify({"message": "İstifadəçi tapılmadı."}), 404
+            return jsonify({"message": "User not found."}), 404
         if user.status == "pending":
-            return jsonify({"message": "Hesabınız hələ admin tərəfindən təsdiqlənməyib."}), 403
+            return jsonify({"message": "Your account has not been approved by the admin yet."}), 403
         if user.status == "blocked":
-            return jsonify({"message": "Hesabınız bloklanmışdır."}), 403
+            return jsonify({"message": "Your account is blocked."}), 403
         return fn(*args, **kwargs)
     return wrapper

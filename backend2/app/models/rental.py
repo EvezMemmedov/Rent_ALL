@@ -17,7 +17,7 @@ class Rental(db.Model):
     # Status: "pending" | "approved" | "rejected" | "active" | "completed" | "cancelled"
     status = db.Column(db.String(20), nullable=False, default="pending")
 
-    message = db.Column(db.Text, nullable=True)  # renter-in müraciət mesajı
+    message = db.Column(db.Text, nullable=True)
 
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(

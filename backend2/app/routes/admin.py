@@ -58,22 +58,22 @@ def verify_user(user_id):
     """İstifadəçini təsdiqlə."""
     user = User.query.get_or_404(user_id)
     data = request.get_json()
-    action = data.get("action")  # "approve" | "reject" | "block"
+    action = data.get("action")
 
     if action == "approve":
         user.status = "approved"
-        message = "İstifadəçi təsdiqləndi."
+        message = "User verified."
     elif action == "reject":
         user.status = "blocked"
-        message = "İstifadəçi rədd edildi."
+        message = "User rejected."
     elif action == "block":
         user.status = "blocked"
-        message = "İstifadəçi bloklandı."
+        message = "User blocked."
     elif action == "unblock":
         user.status = "approved"
-        message = "İstifadəçinin bloku açıldı."
+        message = "User unblocked."
     else:
-        return jsonify({"message": "Etibarsız əməliyyat."}), 400
+        return jsonify({"message": "Invalid action."}), 400
 
     db.session.commit()
     return jsonify({"message": message, "user": user.to_dict()}), 200
@@ -83,7 +83,7 @@ def verify_user(user_id):
 @jwt_required()
 @admin_required
 def reports():
-    """Admin statistika hesabatı."""
+    """Admin statistics report."""
     from sqlalchemy import func
 
     total_users = User.query.filter(User.role != "admin").count()

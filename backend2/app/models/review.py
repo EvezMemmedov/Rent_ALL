@@ -11,7 +11,7 @@ class Review(db.Model):
     reviewer_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     rental_id = db.Column(db.Integer, db.ForeignKey("rentals.id"), nullable=True)
 
-    rating = db.Column(db.Integer, nullable=False)  # 1-5
+    rating = db.Column(db.Integer, nullable=False)
     comment = db.Column(db.Text, nullable=True)
 
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))

@@ -1,5 +1,5 @@
 """
-Verilənlər bazasına başlanğıc data əlavə et.
+Verilenler bazasina başlanğic data elave et.
 İstifadə: python seed.py
 """
 import os
@@ -13,7 +13,7 @@ app = create_app(os.getenv("FLASK_ENV", "development"))
 
 def seed():
     with app.app_context():
-        print("🌱 Seed başlayır...")
+        print("🌱 Seeding started...")
 
         # Admin istifadəçi
         if not User.query.filter_by(email="admin@rentall.az").first():
@@ -25,23 +25,23 @@ def seed():
                 status="approved",
             )
             db.session.add(admin)
-            print("Admin yaradıldı: admin@rentall.az / admin123")
+            print("Admin created: admin@rentall.az / admin123")
 
         # Test istifadəçi
         test_user = User.query.filter_by(email="test@rentall.az").first()
         if not test_user:
             test_user = User(
-                name="Test İstifadəçi",
+                name="Test User",
                 email="test@rentall.az",
                 password_hash=bcrypt.generate_password_hash("test123").decode("utf-8"),
                 role="user",
                 status="approved",
                 phone="+994501234567",
-                bio="Test hesabı",
+                bio="Test account",
             )
             db.session.add(test_user)
             db.session.flush()
-            print("Test user yaradıldı: test@rentall.az / test123")
+            print("Test user created: test@rentall.az / test123")
 
             # Test əşyalar
             items = [

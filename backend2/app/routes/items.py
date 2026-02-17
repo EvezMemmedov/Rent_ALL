@@ -153,13 +153,13 @@ def update_item(item_id):
 @jwt_required()
 @approved_required
 def delete_item(item_id):
-    """Əşyanı sil (yalnız sahibi edə bilər)."""
+    """Delete item (only the owner can do this)."""
     user_id = int(get_jwt_identity())
     item = Item.query.get_or_404(item_id)
 
     if item.owner_id != user_id:
-        return jsonify({"message": "Bu əşyani yalnız sahibi silə bilər."}), 403
+        return jsonify({"message": "This item can only be deleted by its owner."}), 403
 
     db.session.delete(item)
     db.session.commit()
-    return jsonify({"message": "Əşya silindi."}), 200
+    return jsonify({"message": "Item deleted successfully."}), 200

@@ -13,7 +13,6 @@ auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.post("/register")
 def register():
-    # FormData ilə işlə
     name = request.form.get('name') or request.json.get('name') if request.is_json else request.form.get('name')
     email = request.form.get('email') or (request.json.get('email') if request.is_json else None)
     password = request.form.get('password') or (request.json.get('password') if request.is_json else None)
@@ -25,13 +24,13 @@ def register():
         password = data.get('password')
 
     if not name or not email or not password:
-        return jsonify({"message": "name, email və password tələb olunur."}), 400
+        return jsonify({"message": "Name, email, and password are required."}), 400
 
     if len(password) < 6:
-        return jsonify({"message": "Şifrə ən azı 6 simvol olmalıdır."}), 400
+        return jsonify({"message": "Password must be at least 6 characters long."}), 400
 
     if User.query.filter_by(email=email.lower()).first():
-        return jsonify({"message": "Bu email artıq qeydiyyatdan keçib."}), 409
+        return jsonify({"message": "This email is already registered."}), 409
 
     password_hash = bcrypt.generate_password_hash(password).decode("utf-8")
     user = User(
@@ -58,7 +57,7 @@ def register():
     db.session.commit()
 
     return jsonify({
-        "message": "Qeydiyyat uğurlu oldu. Admin təsdiqini gözləyin.",
+        "message": "Registration successful. Please wait for admin verification.",
         "user": user.to_dict(),
     }), 201
 
@@ -68,28 +67,28 @@ def login():
     data = request.get_json()
 
     if not data.get("email") or not data.get("password"):
-        return jsonify({"message": "Email və şifrə tələb olunur."}), 400
+        return jsonify({"message": "Email and password are required."}), 400
 
     user = User.query.filter_by(email=data["email"].lower()).first()
 
     if not user or not bcrypt.check_password_hash(user.password_hash, data["password"]):
-        return jsonify({"message": "Email və ya şifrə yanlışdır."}), 401
+        return jsonify({"message": "Invalid email or password."}), 401
 
     if user.status == "pending":
         return jsonify({
-            "message": "Hesabınız hələ admin tərəfindən təsdiqlənməyib.",
+            "message": "Your account has not been verified by admin yet.",
             "status": "pending",
         }), 403
 
     if user.status == "blocked":
-        return jsonify({"message": "Hesabınız bloklanmışdır. Admin ilə əlaqə saxlayın."}), 403
+        return jsonify({"message": "Your account is blocked. Please contact admin."}), 403
 
     # Token yarat
     access_token = create_access_token(identity=str(user.id))
     refresh_token = create_refresh_token(identity=str(user.id))
 
     return jsonify({
-        "message": "Uğurla daxil oldunuz.",
+        "message": "Successfully logged in.",
         "accessToken": access_token,
         "refreshToken": refresh_token,
         "user": user.to_dict(),
@@ -102,7 +101,7 @@ def me():
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
     if not user:
-        return jsonify({"message": "İstifadəçi tapılmadı."}), 404
+        return jsonify({"message": "User not found."}), 404
     return jsonify({"user": user.to_dict()}), 200
 
 
@@ -117,5 +116,4 @@ def refresh():
 @auth_bp.post("/logout")
 @jwt_required()
 def logout():
-    # Client tərəfdə token silinir, serverdə blacklist lazım deyil (sadə versiya)
-    return jsonify({"message": "Uğurla çıxdınız."}), 200
+    return jsonify({"message": "Successfully logged out."}), 200

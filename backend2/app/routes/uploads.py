@@ -15,7 +15,7 @@ def allowed_file(filename):
 
 def save_image(file, subfolder="items"):
     if not allowed_file(file.filename):
-        return None, "Yalnız JPG, PNG, WEBP, GIF faylları qəbul olunur."
+        return None, "Only JPG, PNG, WEBP, and GIF files are allowed."
 
     ext = file.filename.rsplit(".", 1)[1].lower()
     filename = f"{uuid.uuid4().hex}.{ext}"
@@ -39,11 +39,11 @@ def save_image(file, subfolder="items"):
 @jwt_required()
 def upload_image():
     if "file" not in request.files:
-        return jsonify({"message": "Fayl tapılmadı."}), 400
+        return jsonify({"message": "File not found."}), 400
 
     file = request.files["file"]
     if file.filename == "":
-        return jsonify({"message": "Fayl seçilməyib."}), 400
+        return jsonify({"message": "No file selected."}), 400
 
     subfolder = request.form.get("type", "items")
     url, error = save_image(file, subfolder)
@@ -51,7 +51,7 @@ def upload_image():
     if error:
         return jsonify({"message": error}), 400
 
-    return jsonify({"url": url, "message": "Şəkil yükləndi."}), 201
+    return jsonify({"url": url, "message": "Image uploaded successfully."}), 201
 
 
 @uploads_bp.post("/images")
@@ -60,10 +60,10 @@ def upload_multiple_images():
     files = request.files.getlist("files")
 
     if not files:
-        return jsonify({"message": "Fayl tapılmadı."}), 400
+        return jsonify({"message": "File not found."}), 400
 
     if len(files) > 10:
-        return jsonify({"message": "Maksimum 10 fayl yükləyə bilərsiniz."}), 400
+        return jsonify({"message": "Maximum 10 files can be uploaded."}), 400
 
     urls = []
     for file in files:
@@ -73,7 +73,7 @@ def upload_multiple_images():
                 return jsonify({"message": error}), 400
             urls.append(url)
 
-    return jsonify({"urls": urls, "message": f"{len(urls)} şəkil yükləndi."}), 201
+    return jsonify({"urls": urls, "message": f"{len(urls)} images uploaded successfully."}), 201
 
 
 @uploads_bp.get("/ids/<filename>")
