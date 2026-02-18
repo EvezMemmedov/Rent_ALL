@@ -40,6 +40,6 @@ This flow works end-to-end between frontend and backend.
 ### Run Frontend
 
 ```bash
-cd frontend
+cd RENT_ALL
 npm install
 npm run dev
