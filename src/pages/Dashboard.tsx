@@ -90,9 +90,12 @@ export default function Dashboard() {
                     <div key={rental.id} className="card-static p-4">
                       <div className="flex gap-4">
                         <img
-                          src={rental.item?.images?.[0] || 'https://via.placeholder.com/80'}
-                          alt={rental.item?.title}
+                          src={item.images && item.images.length > 0 ? item.images[0] : 'https://placehold.co/80x80?text=No+Image'}
+                          alt={item.title}
                           className="w-20 h-20 rounded-lg object-cover shrink-0"
+                          onError={(e) => {
+                            e.currentTarget.src = 'https://placehold.co/80x80?text=Error'; // Şəkil yüklənməsə bunu göstər
+                          }}
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">

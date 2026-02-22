@@ -7,7 +7,19 @@ interface ItemCardProps {
 
 export function ItemCard({ item }: ItemCardProps) {
   const rating = item.avgRating || item.rating || 0;
-  const image = item.images?.[0] || '/placeholder.svg';
+  
+
+  let image = '/placeholder.svg';
+  if (item.images?.[0]) {
+    const img = item.images[0];
+    if (img.startsWith('http')) {
+      image = img;
+    } else if (img.startsWith('/api/uploads')) {
+      image = `http://127.0.0.1:5000${img}`;
+    } else {
+      image = `/placeholder.svg`;
+    }
+  }
 
   return (
     <Link to={`/items/${item.id}`} className="block">
@@ -17,6 +29,9 @@ export function ItemCard({ item }: ItemCardProps) {
             src={image}
             alt={item.title}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/placeholder.svg';
+            }}
           />
           <div className="absolute top-3 left-3">
             <span className="px-2.5 py-1 bg-card/90 backdrop-blur-sm rounded-full text-xs font-medium capitalize">

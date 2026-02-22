@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { useCreateItem } from '@/hooks/useItems';
+import api from '@/lib/api';
 import type { ItemCategory } from '@/types';
 
 const categories: { value: ItemCategory; label: string }[] = [
@@ -19,7 +20,8 @@ const categories: { value: ItemCategory; label: string }[] = [
 export default function AddItem() {
   const navigate = useNavigate();
   const createItem = useCreateItem();
-  const [images, setImages] = useState<string[]>([]);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     title: '',
     category: '' as ItemCategory,
@@ -31,33 +33,56 @@ export default function AddItem() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
-      const newImages = Array.from(files).map(file => URL.createObjectURL(file));
-      setImages(prev => [...prev, ...newImages].slice(0, 5));
+      const newFiles = Array.from(files);
+      const newPreviews = newFiles.map(file => URL.createObjectURL(file));
+      
+      setImageFiles(prev => [...prev, ...newFiles].slice(0, 5));
+      setImagePreviews(prev => [...prev, ...newPreviews].slice(0, 5));
     }
   };
 
   const removeImage = (index: number) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    createItem.mutate(
-      {
-        title: formData.title,
-        category: formData.category,
-        description: formData.description,
-        pricePerDay: Number(formData.pricePerDay),
-        location: formData.location,
-        images: images,
-      },
-      { onSuccess: () => navigate('/my-items') }
-    );
+    
+    try {
+      // Əvvəlcə şəkilləri yüklə
+      const imageUrls: string[] = [];
+      for (const file of imageFiles) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', 'items');
+        
+        const res = await api.post('/uploads/image', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        imageUrls.push(res.data.url);
+      }
+
+      // Sonra item-i yarat
+      createItem.mutate(
+        {
+          title: formData.title,
+          category: formData.category,
+          description: formData.description,
+          pricePerDay: Number(formData.pricePerDay),
+          location: formData.location,
+          images: imageUrls,
+        },
+        { onSuccess: () => navigate('/my-items') }
+      );
+    } catch (error) {
+      console.error('Şəkil yükləmə xətası:', error);
+    }
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar isAuthenticated={true} userStatus="approved" />
+      <Navbar />
 
       <main className="flex-1 py-8">
         <div className="page-container max-w-3xl">
@@ -78,11 +103,10 @@ export default function AddItem() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Images */}
             <section className="card-static p-6">
               <h2 className="text-lg font-semibold text-foreground mb-4">Photos</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-                {images.map((img, index) => (
+                {imagePreviews.map((img, index) => (
                   <div key={index} className="relative aspect-square rounded-lg overflow-hidden group">
                     <img src={img} alt={`Upload ${index + 1}`} className="w-full h-full object-cover" />
                     <button
@@ -97,7 +121,7 @@ export default function AddItem() {
                     )}
                   </div>
                 ))}
-                {images.length < 5 && (
+                {imagePreviews.length < 5 && (
                   <label className="aspect-square rounded-lg border-2 border-dashed border-input flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
                     <Upload className="w-6 h-6 text-muted-foreground mb-2" />
                     <span className="text-xs text-muted-foreground">Add Photo</span>
@@ -108,7 +132,6 @@ export default function AddItem() {
               <p className="text-xs text-muted-foreground mt-3">Upload up to 5 photos. First photo will be the cover.</p>
             </section>
 
-            {/* Basic Info */}
             <section className="card-static p-6">
               <h2 className="text-lg font-semibold text-foreground mb-4">Basic Information</h2>
               <div className="space-y-5">
@@ -162,7 +185,6 @@ export default function AddItem() {
               </div>
             </section>
 
-            {/* Pricing */}
             <section className="card-static p-6">
               <h2 className="text-lg font-semibold text-foreground mb-4">Pricing</h2>
               <div>

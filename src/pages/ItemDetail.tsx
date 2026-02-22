@@ -29,6 +29,13 @@ export default function ItemDetail() {
     : 0;
   const totalPrice = totalDays * (item?.pricePerDay || 0);
 
+  const getImageUrl = (img: string | undefined) => {
+    if (!img) return 'https://via.placeholder.com/800x500';
+    if (img.startsWith('http')) return img;
+    if (img.startsWith('/api/uploads')) return `http://127.0.0.1:5000${img}`;
+    return 'https://via.placeholder.com/800x500';
+  };
+
   const handleDateClick = (date: Date) => {
     if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
       setSelectedStartDate(date);
@@ -68,7 +75,7 @@ export default function ItemDetail() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
-        <Navbar isAuthenticated={true} userStatus="approved" />
+        <Navbar />
         <main className="flex-1 flex items-center justify-center">
           <p className="text-muted-foreground">Yüklənir...</p>
         </main>
@@ -79,7 +86,7 @@ export default function ItemDetail() {
   if (!item) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
-        <Navbar isAuthenticated={true} userStatus="approved" />
+        <Navbar />
         <main className="flex-1 flex items-center justify-center">
           <p className="text-destructive">Əşya tapılmadı.</p>
         </main>
@@ -89,7 +96,7 @@ export default function ItemDetail() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar isAuthenticated={true} userStatus="approved" />
+      <Navbar />
 
       <main className="flex-1 py-8">
         <div className="page-container">
@@ -99,14 +106,15 @@ export default function ItemDetail() {
           </Link>
 
           <div className="grid lg:grid-cols-5 gap-8">
-            {/* Left Column */}
             <div className="lg:col-span-3 space-y-6">
-              {/* Image Gallery */}
               <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-muted">
                 <img
-                  src={item.images?.[currentImageIndex] || 'https://via.placeholder.com/800x500'}
+                  src={getImageUrl(item.images?.[currentImageIndex])}
                   alt={item.title}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/800x500';
+                  }}
                 />
                 {item.images?.length > 1 && (
                   <>
@@ -126,7 +134,6 @@ export default function ItemDetail() {
                 )}
               </div>
 
-              {/* Title & Info */}
               <div>
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
@@ -152,7 +159,6 @@ export default function ItemDetail() {
                 <p className="text-foreground leading-relaxed">{item.description}</p>
               </div>
 
-              {/* Owner Info */}
               <div className="card-static p-5">
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xl font-semibold">
@@ -175,7 +181,6 @@ export default function ItemDetail() {
               </div>
             </div>
 
-            {/* Right Column - Booking */}
             <div className="lg:col-span-2">
               <div className="card-static p-6 sticky top-24">
                 <div className="flex items-baseline gap-2 mb-6">
@@ -199,9 +204,7 @@ export default function ItemDetail() {
                         key={date.toISOString()}
                         onClick={() => handleDateClick(date)}
                         className={`py-2 text-sm rounded-lg transition-colors ${
-                          isDateSelected(date)
-                            ? 'bg-primary text-primary-foreground'
-                            : 'hover:bg-muted'
+                          isDateSelected(date) ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
                         }`}
                       >
                         {format(date, 'd')}
@@ -255,7 +258,6 @@ export default function ItemDetail() {
         </div>
       </main>
 
-      {/* Request Modal */}
       {showRequestModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/50 backdrop-blur-sm animate-fade-in">
           <div className="card-static w-full max-w-md p-6 animate-scale-in">

@@ -4,14 +4,20 @@ import { Plus, Star, MoreVertical, Edit, Trash2, Eye, EyeOff, Package } from 'lu
 import { Button } from '@/components/ui/button';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { useMyItems, useDeleteItem, useUpdateItem } from '@/hooks/useItems';
+import { useMyItems, useDeleteItem } from '@/hooks/useItems';
 
 export default function MyItems() {
   const [showMenu, setShowMenu] = useState<number | null>(null);
-
   const { data, isLoading } = useMyItems();
   const deleteItem = useDeleteItem();
   const items = data?.items || [];
+
+  const getImageUrl = (img: string | undefined) => {
+    if (!img) return 'https://via.placeholder.com/160x112';
+    if (img.startsWith('http')) return img;
+    if (img.startsWith('/api/uploads')) return `http://127.0.0.1:5000${img}`;
+    return 'https://via.placeholder.com/160x112';
+  };
 
   const handleDelete = (id: number) => {
     if (confirm('Bu əşyanı silmək istədiyinizə əminsiniz?')) {
@@ -21,7 +27,7 @@ export default function MyItems() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar isAuthenticated={true} userStatus="approved" />
+      <Navbar />
 
       <main className="flex-1 py-8">
         <div className="page-container">
@@ -47,9 +53,12 @@ export default function MyItems() {
                   <div className="flex flex-col md:flex-row gap-4">
                     <Link to={`/items/${item.id}`}>
                       <img
-                        src={item.images?.[0] || 'https://via.placeholder.com/160x112'}
+                        src={getImageUrl(item.images?.[0])}
                         alt={item.title}
                         className="w-full md:w-40 h-48 md:h-28 rounded-lg object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/160x112';
+                        }}
                       />
                     </Link>
                     <div className="flex-1">
