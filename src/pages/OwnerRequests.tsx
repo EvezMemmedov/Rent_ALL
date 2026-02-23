@@ -16,15 +16,15 @@ export default function OwnerRequests() {
   const item = itemData?.item;
   const requests = data?.rentals || [];
 
-  const handleApprove = (id: number) => {
-    updateStatus.mutate({ id, status: 'approved' });
-  };
-
   const getImageUrl = (img: string | undefined) => {
     if (!img) return 'https://via.placeholder.com/80';
     if (img.startsWith('http')) return img;
     if (img.startsWith('/api/uploads')) return `http://127.0.0.1:5000${img}`;
     return 'https://via.placeholder.com/80';
+  };
+
+  const handleApprove = (id: number) => {
+    updateStatus.mutate({ id, status: 'approved' });
   };
 
   const handleReject = (id: number) => {
@@ -33,7 +33,7 @@ export default function OwnerRequests() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar isAuthenticated={true} userStatus="approved" />
+      <Navbar />
 
       <main className="flex-1 py-8">
         <div className="page-container max-w-4xl">
@@ -65,7 +65,6 @@ export default function OwnerRequests() {
             <div className="space-y-4">
               {requests.map((request: any) => (
                 <div key={request.id} className="card-static p-6">
-                  {/* Renter Info */}
                   <div className="flex items-start justify-between gap-4 mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold">
@@ -87,7 +86,6 @@ export default function OwnerRequests() {
                     <StatusBadge status={request.status} />
                   </div>
 
-                  {/* Dates & Price */}
                   <div className="bg-muted/50 rounded-lg p-4 mb-4">
                     <div className="grid sm:grid-cols-3 gap-4 text-sm">
                       <div>
@@ -105,7 +103,6 @@ export default function OwnerRequests() {
                     </div>
                   </div>
 
-                  {/* Message */}
                   {request.message && (
                     <div className="mb-4">
                       <p className="text-sm text-muted-foreground mb-1">Message from renter:</p>
@@ -113,7 +110,6 @@ export default function OwnerRequests() {
                     </div>
                   )}
 
-                  {/* Actions */}
                   {request.status === 'pending' && (
                     <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
                       <Button
