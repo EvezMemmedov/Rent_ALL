@@ -20,6 +20,13 @@ export default function OwnerRequests() {
     updateStatus.mutate({ id, status: 'approved' });
   };
 
+  const getImageUrl = (img: string | undefined) => {
+    if (!img) return 'https://via.placeholder.com/80';
+    if (img.startsWith('http')) return img;
+    if (img.startsWith('/api/uploads')) return `http://127.0.0.1:5000${img}`;
+    return 'https://via.placeholder.com/80';
+  };
+
   const handleReject = (id: number) => {
     updateStatus.mutate({ id, status: 'rejected' });
   };
@@ -37,7 +44,14 @@ export default function OwnerRequests() {
 
           <div className="flex flex-col md:flex-row gap-4 mb-8">
             {item?.images?.[0] && (
-              <img src={item.images[0]} alt={item.title} className="w-20 h-20 rounded-lg object-cover" />
+              <img
+                src={getImageUrl(item.images[0])}
+                alt={item.title}
+                className="w-20 h-20 rounded-lg object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80';
+                }}
+              />
             )}
             <div>
               <h1 className="text-2xl font-bold text-foreground mb-1">Rental Requests</h1>

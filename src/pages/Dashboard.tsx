@@ -21,6 +21,13 @@ export default function Dashboard() {
     .filter((r: any) => r.status === 'completed')
     .reduce((sum: number, r: any) => sum + r.totalPrice, 0);
 
+  const getImageUrl = (img: string | undefined) => {
+    if (!img) return 'https://via.placeholder.com/80';
+    if (img.startsWith('http')) return img;
+    if (img.startsWith('/api/uploads')) return `http://127.0.0.1:5000${img}`;
+    return 'https://via.placeholder.com/80';
+  };
+
   const stats = [
     { label: 'Active Rentals', value: String(activeRentals), icon: Calendar, trend: 'Hal-hazırda aktiv' },
     { label: 'Total Earnings', value: `$${totalEarnings.toFixed(0)}`, icon: DollarSign, trend: 'Tamamlanmış icarələr' },
@@ -30,7 +37,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar isAuthenticated={true} userStatus="approved" />
+      <Navbar />
 
       <main className="flex-1 py-8">
         <div className="page-container">
@@ -49,7 +56,6 @@ export default function Dashboard() {
             </Link>
           </div>
 
-          {/* Stats Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {stats.map((stat) => (
               <div key={stat.label} className="card-static p-5">
@@ -67,7 +73,6 @@ export default function Dashboard() {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-8">
-            {/* Recent Rentals */}
             <section>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-foreground">Your Rentals</h2>
@@ -90,11 +95,11 @@ export default function Dashboard() {
                     <div key={rental.id} className="card-static p-4">
                       <div className="flex gap-4">
                         <img
-                          src={item.images && item.images.length > 0 ? item.images[0] : 'https://placehold.co/80x80?text=No+Image'}
-                          alt={item.title}
+                          src={getImageUrl(rental.item?.images?.[0])}
+                          alt={rental.item?.title}
                           className="w-20 h-20 rounded-lg object-cover shrink-0"
                           onError={(e) => {
-                            e.currentTarget.src = 'https://placehold.co/80x80?text=Error'; // Şəkil yüklənməsə bunu göstər
+                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80';
                           }}
                         />
                         <div className="flex-1 min-w-0">
@@ -114,7 +119,6 @@ export default function Dashboard() {
               </div>
             </section>
 
-            {/* My Listed Items */}
             <section>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-foreground">My Listed Items</h2>
@@ -137,9 +141,12 @@ export default function Dashboard() {
                     <div key={item.id} className="card-static p-4">
                       <div className="flex gap-4">
                         <img
-                          src={item.images?.[0] || 'https://via.placeholder.com/80'}
+                          src={getImageUrl(item.images?.[0])}
                           alt={item.title}
                           className="w-20 h-20 rounded-lg object-cover shrink-0"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80';
+                          }}
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
