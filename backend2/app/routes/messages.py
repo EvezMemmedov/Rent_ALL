@@ -1,0 +1,47 @@
+from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from app import db
+from app.models.message import Message
+
+messages_bp = Blueprint("messages", __name__)
+
+# Mesaj göndər
+@messages_bp.post("/")
+@jwt_required()
+def send_message():
+    current_user_id = get_jwt_identity()
+    data = request.get_json()
+    
+    msg = Message(
+        sender_id=current_user_id,
+        receiver_id=data["receiver_id"],
+        content=data["content"]
+    )
+    db.session.add(msg)
+    db.session.commit()
+    return jsonify(msg.to_dict()), 201
+
+# İki user arasındakı mesajları gətir
+@messages_bp.get("/<int:user_id>")
+@jwt_required()
+def get_conversation(user_id):
+    current_user_id = get_jwt_identity()
+    
+    messages = Message.query.filter(
+        ((Message.sender_id == current_user_id) & (Message.receiver_id == user_id)) |
+        ((Message.sender_id == user_id) & (Message.receiver_id == current_user_id))
+    ).order_by(Message.created_at.asc()).all()
+    
+    return jsonify([m.to_dict() for m in messages])
+
+# Bütün söhbətləri gətir
+@messages_bp.get("/conversations")
+@jwt_required()
+def get_conversations():
+    current_user_id = get_jwt_identity()
+    
+    messages = Message.query.filter(
+        (Message.sender_id == current_user_id) | (Message.receiver_id == current_user_id)
+    ).order_by(Message.created_at.desc()).all()
+    
+    return jsonify([m.to_dict() for m in messages])

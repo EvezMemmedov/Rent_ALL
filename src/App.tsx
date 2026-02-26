@@ -18,6 +18,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import PendingUsers from "./pages/admin/PendingUsers";
 import VerifyUser from "./pages/admin/VerifyUser";
 import NotFound from "./pages/NotFound";
+import Messages from "./pages/Messages";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -49,6 +50,7 @@ const App = () => (
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/pending-users" element={<PendingUsers />} />
           <Route path="/admin/verify-user/:userId" element={<VerifyUser />} />
+          <Route path="/messages/:userId" element={<Messages />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

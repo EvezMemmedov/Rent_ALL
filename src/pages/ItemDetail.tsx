@@ -173,7 +173,7 @@ export default function ItemDetail() {
                       </span>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm" className="gap-2">
+                  <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate(`/messages/${item.owner?.id}`)}>
                     <MessageCircle className="w-4 h-4" />
                     Message
                   </Button>

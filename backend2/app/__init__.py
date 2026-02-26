@@ -31,14 +31,10 @@ def create_app(config_name=None):
     bcrypt.init_app(app)
 
     # CORS - frontend ilə elaqe
-    CORS(
-        app,
-        origins=[app.config["FRONTEND_URL"]],
-        supports_credentials=True,
-    )
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
 
     # Modelleri import et (Alembic ucun lazımdır)
-    from app.models import user, item, rental, review  # noqa: F401
+    from app.models import user, item, rental, review, message  # noqa: F401
 
     # Blueprint-leri qeydiyyatdan keçir
     from app.routes.auth import auth_bp
@@ -47,6 +43,7 @@ def create_app(config_name=None):
     from app.routes.rentals import rentals_bp
     from app.routes.admin import admin_bp
     from app.routes.uploads import uploads_bp
+    from app.routes.messages import messages_bp
 
     app.register_blueprint(auth_bp,    url_prefix="/api/auth")
     app.register_blueprint(users_bp,   url_prefix="/api/users")
@@ -54,6 +51,7 @@ def create_app(config_name=None):
     app.register_blueprint(rentals_bp, url_prefix="/api/rentals")
     app.register_blueprint(admin_bp,   url_prefix="/api/admin")
     app.register_blueprint(uploads_bp, url_prefix="/api/uploads")
+    app.register_blueprint(messages_bp, url_prefix="/api/messages")
 
     # JWT xeta handler-ları
     from app.middleware.jwt_handlers import register_jwt_handlers
