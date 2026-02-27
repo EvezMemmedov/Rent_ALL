@@ -81,3 +81,17 @@ export function useDeleteItem() {
     },
   });
 }
+
+export function useHideItem() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const res = await api.patch(`/items/${id}/hide`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['items'] });
+      queryClient.invalidateQueries({ queryKey: ['my-items'] });
+    },
+  });
+}

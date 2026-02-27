@@ -45,3 +45,15 @@ def get_conversations():
     ).order_by(Message.created_at.desc()).all()
     
     return jsonify([m.to_dict() for m in messages])
+
+# Mesaj sil
+@messages_bp.delete("/<int:msg_id>")
+@jwt_required()
+def delete_message(msg_id):
+    current_user_id = int(get_jwt_identity())
+    msg = Message.query.get_or_404(msg_id)
+    if msg.sender_id != current_user_id:
+        return jsonify({"error": "İcazə yoxdur"}), 403
+    db.session.delete(msg)
+    db.session.commit()
+    return jsonify({"success": True})

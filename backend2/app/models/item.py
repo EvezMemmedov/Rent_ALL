@@ -20,6 +20,8 @@ class Item(db.Model):
 
     owner_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
+    is_hidden = db.Column(db.Boolean, default=False, nullable=False)  # ← əlavə edildi
+
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(
         db.DateTime,
@@ -56,6 +58,7 @@ class Item(db.Model):
             "status": self.status,
             "images": self.get_images(),
             "ownerId": self.owner_id,
+            "isHidden": self.is_hidden,  # ← əlavə edildi
             "createdAt": self.created_at.isoformat() if self.created_at else None,
         }
         if include_owner and self.owner:

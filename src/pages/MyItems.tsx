@@ -4,12 +4,13 @@ import { Plus, Star, MoreVertical, Edit, Trash2, Eye, EyeOff, Package } from 'lu
 import { Button } from '@/components/ui/button';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { useMyItems, useDeleteItem } from '@/hooks/useItems';
+import { useMyItems, useDeleteItem, useHideItem } from '@/hooks/useItems';
 
 export default function MyItems() {
   const [showMenu, setShowMenu] = useState<number | null>(null);
   const { data, isLoading } = useMyItems();
   const deleteItem = useDeleteItem();
+  const hideItem = useHideItem();
   const items = data?.items || [];
 
   const getImageUrl = (img: string | undefined) => {
@@ -23,6 +24,11 @@ export default function MyItems() {
     if (confirm('Bu əşyanı silmək istədiyinizə əminsiniz?')) {
       deleteItem.mutate(id);
     }
+  };
+
+  const handleHide = (id: number) => {
+    hideItem.mutate(id);
+    setShowMenu(null);
   };
 
   return (
@@ -87,9 +93,13 @@ export default function MyItems() {
                                 <Edit className="w-4 h-4" />
                                 Edit
                               </Link>
-                              <button className="w-full px-4 py-2 text-sm text-left hover:bg-muted flex items-center gap-2">
-                                <EyeOff className="w-4 h-4" />
-                                Hide Listing
+                              <button
+                                onClick={() => handleHide(item.id)}
+                                className="w-full px-4 py-2 text-sm text-left hover:bg-muted flex items-center gap-2"
+                                disabled={hideItem.isPending}
+                              >
+                                {item.isHidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                                {item.isHidden ? 'Show Listing' : 'Hide Listing'}
                               </button>
                               <button
                                 onClick={() => handleDelete(item.id)}

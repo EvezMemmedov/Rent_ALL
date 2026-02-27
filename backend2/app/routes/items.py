@@ -13,7 +13,6 @@ items_bp = Blueprint("items", __name__)
 @approved_required
 def browse_items():
     """Bütün əşyaları gəz — axtarış, filtr, sort dəstəyi ilə."""
-    # Query parametrləri
     search = request.args.get("search", "").strip()
     category = request.args.get("category", "").strip()
     min_price = request.args.get("minPrice", type=float)
@@ -22,30 +21,26 @@ def browse_items():
     page = request.args.get("page", 1, type=int)
     per_page = request.args.get("perPage", 12, type=int)
 
-    query = Item.query.filter_by(status="available")
+    query = Item.query.filter_by(status="available", is_hidden=False)
 
-    # Axtarış
     if search:
         query = query.filter(
             Item.title.ilike(f"%{search}%") | Item.description.ilike(f"%{search}%")
         )
 
-    # Kateqoriya filteri
     if category:
         query = query.filter_by(category=category)
 
-    # Qiymət filteri
     if min_price is not None:
         query = query.filter(Item.price_per_day >= min_price)
     if max_price is not None:
         query = query.filter(Item.price_per_day <= max_price)
 
-    # Sıralama
     if sort_by == "price_asc":
         query = query.order_by(Item.price_per_day.asc())
     elif sort_by == "price_desc":
         query = query.order_by(Item.price_per_day.desc())
-    else:  # newest
+    else:
         query = query.order_by(Item.created_at.desc())
 
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
@@ -63,7 +58,7 @@ def browse_items():
 @jwt_required()
 @approved_required
 def my_items():
-    """Cari istifadəçinin öz əşyaları."""
+    """Cari istifadəçinin öz əşyaları — gizli olanlar da görünsün."""
     user_id = int(get_jwt_identity())
     items = Item.query.filter_by(owner_id=user_id).order_by(Item.created_at.desc()).all()
     return jsonify({"items": [item.to_dict() for item in items]}), 200
@@ -77,7 +72,6 @@ def get_item(item_id):
     item = Item.query.get_or_404(item_id)
     data = item.to_dict(include_owner=True)
 
-    # Rəylər əlavə et
     reviews = [r.to_dict() for r in item.reviews.order_by(None).all()]
     data["reviews"] = reviews
     data["avgRating"] = (
@@ -163,3 +157,25 @@ def delete_item(item_id):
     db.session.delete(item)
     db.session.commit()
     return jsonify({"message": "Item deleted successfully."}), 200
+
+
+@items_bp.patch("/<int:item_id>/hide")
+@jwt_required()
+@approved_required
+def toggle_hide_listing(item_id):
+    """Listing-i gizlət və ya göstər (yalnız sahibi edə bilər)."""
+    user_id = int(get_jwt_identity())
+    item = Item.query.get_or_404(item_id)
+
+    if item.owner_id != user_id:
+        return jsonify({"message": "Bu əşyanı yalnız sahibi dəyişə bilər."}), 403
+
+    item.is_hidden = not item.is_hidden
+    db.session.commit()
+
+    status = "hidden" if item.is_hidden else "visible"
+    return jsonify({
+        "success": True,
+        "isHidden": item.is_hidden,
+        "message": f"Listing {status} edildi."
+    }), 200
