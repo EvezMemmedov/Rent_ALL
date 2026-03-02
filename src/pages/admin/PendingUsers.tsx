@@ -11,7 +11,7 @@ export default function PendingUsers() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar isAuthenticated={true} userStatus="approved" isAdmin={true} />
+      <Navbar />
 
       <main className="py-8">
         <div className="page-container max-w-4xl">

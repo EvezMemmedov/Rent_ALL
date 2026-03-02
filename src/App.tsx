@@ -3,8 +3,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { AdminRoute } from "@/components/auth/AdminRoute";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -20,6 +18,12 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import PendingUsers from "./pages/admin/PendingUsers";
 import VerifyUser from "./pages/admin/VerifyUser";
 import NotFound from "./pages/NotFound";
+import Messages from "./pages/Messages";
+import HowItWorks from "./pages/HowItWorks";
+import HelpCenter from "./pages/HelpCenter";
+import ContactUs from "./pages/ContactUs";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,22 +45,23 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/pending-approval" element={<PendingApproval />} />
-          
-          {/* Protected Routes */}
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/browse" element={<ProtectedRoute><Browse /></ProtectedRoute>} />
-          <Route path="/items/:id" element={<ProtectedRoute><ItemDetail /></ProtectedRoute>} />
-          <Route path="/add-item" element={<ProtectedRoute><AddItem /></ProtectedRoute>} />
-          <Route path="/my-rentals" element={<ProtectedRoute><MyRentals /></ProtectedRoute>} />
-          <Route path="/my-items" element={<ProtectedRoute><MyItems /></ProtectedRoute>} />
-          <Route path="/owner-requests/:itemId" element={<ProtectedRoute><OwnerRequests /></ProtectedRoute>} />
-          
-          {/* Admin Routes */}
-          <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-          <Route path="/admin/pending-users" element={<AdminRoute><PendingUsers /></AdminRoute>} />
-          <Route path="/admin/verify-user/:userId" element={<AdminRoute><VerifyUser /></AdminRoute>} />
-          
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/browse" element={<Browse />} />
+          <Route path="/items/:id" element={<ItemDetail />} />
+          <Route path="/add-item" element={<AddItem />} />
+          <Route path="/my-rentals" element={<MyRentals />} />
+          <Route path="/my-items" element={<MyItems />} />
+          <Route path="/owner-requests/:itemId" element={<OwnerRequests />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/pending-users" element={<PendingUsers />} />
+          <Route path="/admin/verify-user/:userId" element={<VerifyUser />} />
+          <Route path="/messages/:userId" element={<Messages />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/help-center" element={<HelpCenter />} />
+          <Route path="/contact-us" element={<ContactUs />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

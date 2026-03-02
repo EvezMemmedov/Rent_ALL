@@ -61,7 +61,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar isAuthenticated={isAuthenticated} userStatus={user?.status} isAdmin={isAdmin} />
+      <Navbar />
 
       <main className="py-8">
         <div className="page-container">

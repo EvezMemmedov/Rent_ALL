@@ -33,7 +33,7 @@ export default function VerifyUser() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar isAuthenticated={true} userStatus="approved" isAdmin={true} />
+        <Navbar />
         <main className="py-8">
           <div className="page-container max-w-4xl">
             <p className="text-muted-foreground">Yüklənir...</p>
@@ -46,7 +46,7 @@ export default function VerifyUser() {
   if (!user) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar isAuthenticated={true} userStatus="approved" isAdmin={true} />
+        <Navbar />
         <main className="py-8">
           <div className="page-container max-w-4xl">
             <p className="text-destructive">İstifadəçi tapılmadı.</p>
@@ -61,7 +61,7 @@ export default function VerifyUser() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar isAuthenticated={true} userStatus="approved" isAdmin={true} />
+      <Navbar />
 
       <main className="py-8">
         <div className="page-container max-w-4xl">
