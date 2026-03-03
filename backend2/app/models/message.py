@@ -14,6 +14,7 @@ class Message(db.Model):
     sender = db.relationship("User", foreign_keys=[sender_id])
     receiver = db.relationship("User", foreign_keys=[receiver_id])
 
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -22,5 +23,6 @@ class Message(db.Model):
             "content": self.content,
             "is_read": self.is_read,
             "created_at": self.created_at.isoformat(),
-            "sender": {"id": self.sender.id, "name": self.sender.name}
-        }
+            "sender": {"id": self.sender.id, "name": self.sender.name},
+            "receiver": {"id": self.receiver.id, "name": self.receiver.name}
+      }

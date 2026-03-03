@@ -25,12 +25,18 @@ def send_message():
 @messages_bp.get("/<int:user_id>")
 @jwt_required()
 def get_conversation(user_id):
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())
     
     messages = Message.query.filter(
         ((Message.sender_id == current_user_id) & (Message.receiver_id == user_id)) |
         ((Message.sender_id == user_id) & (Message.receiver_id == current_user_id))
     ).order_by(Message.created_at.asc()).all()
+    
+    # Oxunmamış mesajları oxunmuş et
+    for msg in messages:
+        if msg.receiver_id == current_user_id and not msg.is_read:
+            msg.is_read = True
+    db.session.commit()
     
     return jsonify([m.to_dict() for m in messages])
 
@@ -57,3 +63,11 @@ def delete_message(msg_id):
     db.session.delete(msg)
     db.session.commit()
     return jsonify({"success": True})
+
+# Oxunmamış mesaj sayı
+@messages_bp.get("/unread-count")
+@jwt_required()
+def unread_count():
+    current_user_id = int(get_jwt_identity())
+    count = Message.query.filter_by(receiver_id=current_user_id, is_read=False).count()
+    return jsonify({"count": count})
