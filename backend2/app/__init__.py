@@ -3,7 +3,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from flask_bcrypt import Bcrypt
 
 from config import config
@@ -31,7 +31,7 @@ def create_app(config_name=None):
     bcrypt.init_app(app)
 
     # CORS - frontend ilə elaqe
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    CORS(app, resources={r"/api/*": {"origins": ["http://localhost:8080", "http://127.0.0.1:8080"]}}, supports_credentials=True)
 
     # Modelleri import et (Alembic ucun lazımdır)
     from app.models import user, item, rental, review, message  # noqa: F401
