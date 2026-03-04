@@ -6,19 +6,22 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useMyRentals, useUpdateRentalStatus } from '@/hooks/useRentals';
-import { format } from 'date-fns';
+import { useCreateReview } from '@/hooks/useReviews';
 
 type Tab = 'all' | 'active' | 'completed';
 
 export default function MyRentals() {
   const [activeTab, setActiveTab] = useState<Tab>('all');
   const [showReviewModal, setShowReviewModal] = useState(false);
-  const [selectedRentalId, setSelectedRentalId] = useState<number | null>(null);
+  const [selectedRental, setSelectedRental] = useState<any>(null);
   const [rating, setRating] = useState(5);
+  const [hoveredRating, setHoveredRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
 
   const { data, isLoading } = useMyRentals();
   const updateStatus = useUpdateRentalStatus();
+  const createReview = useCreateReview(selectedRental?.itemId);
+  
   const rentals = data?.rentals || [];
 
   const filteredRentals = rentals.filter((rental: any) => {
@@ -32,9 +35,31 @@ export default function MyRentals() {
     updateStatus.mutate({ id, status: 'cancelled' });
   };
 
+  const handleSubmitReview = () => {
+    if (!selectedRental || rating === 0) return;
+    createReview.mutate(
+      { rating, comment: reviewText },
+      {
+        onSuccess: () => {
+          setShowReviewModal(false);
+          setSelectedRental(null);
+          setRating(5);
+          setReviewText('');
+        },
+      }
+    );
+  };
+
+  const getImageUrl = (img: string | undefined) => {
+    if (!img) return 'https://via.placeholder.com/128x96';
+    if (img.startsWith('http')) return img;
+    if (img.startsWith('/api/uploads')) return `http://127.0.0.1:5000${img}`;
+    return 'https://via.placeholder.com/128x96';
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar isAuthenticated={true} userStatus="approved" />
+      <Navbar />
 
       <main className="flex-1 py-8">
         <div className="page-container">
@@ -68,9 +93,12 @@ export default function MyRentals() {
                   <div className="flex flex-col md:flex-row gap-4">
                     <Link to={`/items/${rental.itemId}`}>
                       <img
-                        src={rental.item?.images?.[0] || 'https://via.placeholder.com/128x96'}
+                        src={getImageUrl(rental.item?.images?.[0])}
                         alt={rental.item?.title}
                         className="w-full md:w-32 h-40 md:h-24 rounded-lg object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/128x96';
+                        }}
                       />
                     </Link>
                     <div className="flex-1">
@@ -98,12 +126,15 @@ export default function MyRentals() {
                       )}
 
                       <div className="flex flex-wrap gap-2 mt-4">
-                        {rental.status === 'completed' && (
+                        {rental.status === 'completed' && !rental.hasReview && (
                           <Button
                             size="sm"
                             variant="outline"
                             className="gap-2"
-                            onClick={() => { setSelectedRentalId(rental.id); setShowReviewModal(true); }}
+                            onClick={() => {
+                              setSelectedRental(rental);
+                              setShowReviewModal(true);
+                            }}
                           >
                             <Star className="w-4 h-4" />
                             Leave Review
@@ -144,24 +175,48 @@ export default function MyRentals() {
         </div>
       </main>
 
-      {/* Review Modal */}
-      {showReviewModal && (
+      {showReviewModal && selectedRental && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/50 backdrop-blur-sm animate-fade-in">
           <div className="card-static w-full max-w-md p-6 animate-scale-in">
             <h2 className="text-xl font-bold text-foreground mb-2">Leave a Review</h2>
-            <p className="text-muted-foreground mb-6">Share your experience with this rental</p>
+            <p className="text-muted-foreground mb-6">
+              Share your experience with {selectedRental.item?.title}
+            </p>
+
+            {createReview.isError && (
+              <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                {(createReview.error as any)?.response?.data?.message || 'Xəta baş verdi.'}
+              </div>
+            )}
+
             <div className="mb-6">
               <label className="block text-sm font-medium text-foreground mb-3">Rating</label>
               <div className="flex gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <button key={star} type="button" onClick={() => setRating(star)} className="p-1">
-                    <Star className={`w-8 h-8 transition-colors ${star <= rating ? 'fill-warning text-warning' : 'text-muted-foreground'}`} />
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setRating(star)}
+                    onMouseEnter={() => setHoveredRating(star)}
+                    onMouseLeave={() => setHoveredRating(0)}
+                    className="p-1 transition-transform hover:scale-110"
+                  >
+                    <Star
+                      className={`w-8 h-8 transition-colors ${
+                        star <= (hoveredRating || rating)
+                          ? 'fill-warning text-warning'
+                          : 'text-muted-foreground'
+                      }`}
+                    />
                   </button>
                 ))}
               </div>
             </div>
+
             <div className="mb-6">
-              <label className="block text-sm font-medium text-foreground mb-2">Your Review</label>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Your Review (optional)
+              </label>
               <textarea
                 value={reviewText}
                 onChange={(e) => setReviewText(e.target.value)}
@@ -170,9 +225,27 @@ export default function MyRentals() {
                 className="input-field resize-none"
               />
             </div>
+
             <div className="flex gap-3">
-              <Button variant="outline" className="flex-1" onClick={() => setShowReviewModal(false)}>Cancel</Button>
-              <Button className="flex-1" onClick={() => setShowReviewModal(false)}>Submit Review</Button>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => {
+                  setShowReviewModal(false);
+                  setSelectedRental(null);
+                  setRating(5);
+                  setReviewText('');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={handleSubmitReview}
+                disabled={createReview.isPending}
+              >
+                {createReview.isPending ? 'Submitting...' : 'Submit Review'}
+              </Button>
             </div>
           </div>
         </div>

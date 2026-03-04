@@ -179,3 +179,42 @@ def toggle_hide_listing(item_id):
         "isHidden": item.is_hidden,
         "message": f"Listing {status} edildi."
     }), 200
+
+@items_bp.post("/<int:item_id>/reviews")
+@jwt_required()
+@approved_required
+def create_review(item_id):
+    """Məhsula rəy yaz (yalnız completed rental olanlar)."""
+    user_id = int(get_jwt_identity())
+    data = request.get_json()
+    
+    from app.models.rental import Rental
+    rental = Rental.query.filter_by(
+        item_id=item_id,
+        renter_id=user_id,
+        status='completed'
+    ).first()
+    
+    if not rental:
+        return jsonify({"message": "Bu məhsula rəy yazmaq üçün əvvəlcə icarəni tamamlamalısınız."}), 403
+    
+    from app.models.review import Review
+    existing = Review.query.filter_by(rental_id=rental.id).first()
+    if existing:
+        return jsonify({"message": "Bu icarə üçün artıq rəy yazmısınız."}), 400
+    
+    rating = data.get("rating")
+    if not rating or not (1 <= rating <= 5):
+        return jsonify({"message": "Rating 1-5 arasında olmalıdır."}), 400
+    
+    review = Review(
+        item_id=item_id,
+        reviewer_id=user_id,
+        rental_id=rental.id,
+        rating=rating,
+        comment=data.get("comment", "")
+    )
+    db.session.add(review)
+    db.session.commit()
+    
+    return jsonify({"message": "Rəy əlavə edildi.", "review": review.to_dict()}), 201
