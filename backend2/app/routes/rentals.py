@@ -48,6 +48,17 @@ def create_rental():
     days = (end - start).days
     total_price = float(item.price_per_day) * days
 
+    # Check for overlapping bookings
+    overlapping = Rental.query.filter(
+        Rental.item_id == item.id,
+        Rental.status.in_(['approved', 'active']),
+        Rental.start_date <= end,
+        Rental.end_date >= start
+    ).first()
+
+    if overlapping:
+        return jsonify({"message": "This item is already booked for the selected dates."}), 400
+
     rental = Rental(
         item_id=item.id,
         renter_id=user_id,
@@ -129,23 +140,21 @@ def update_rental_status(rental_id):
             return jsonify({"message": "Only pending requests can be updated."}), 400
 
         rental.status = new_status
-        if new_status == "approved":
-            item.status = "rented"
+        # We no longer set item.status to "rented". It stays "available" so it can be booked for other dates.
 
     # Cancel — renter edə bilər
     elif new_status == "cancelled":
         if rental.renter_id != user_id:
             return jsonify({"message": "Only the renter can cancel this rental request."}), 403
         rental.status = "cancelled"
-        if item.status == "rented":
-            item.status = "available"
+        # Since we removed "rented" status, no need to revert item.status here.
 
     # Complete — sahibi edə bilər
     elif new_status == "completed":
         if item.owner_id != user_id:
             return jsonify({"message": "Only the owner can mark this rental as completed."}), 403
         rental.status = "completed"
-        item.status = "available"
+        # Since we removed "rented" status, no need to revert item.status here.
 
     db.session.commit()
     return jsonify({

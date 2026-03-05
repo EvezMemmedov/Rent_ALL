@@ -189,14 +189,14 @@ def create_review(item_id):
     data = request.get_json()
     
     from app.models.rental import Rental
-    rental = Rental.query.filter_by(
-        item_id=item_id,
-        renter_id=user_id,
-        status='completed'
+    rental = Rental.query.filter(
+        Rental.item_id == item_id,
+        Rental.renter_id == user_id,
+        Rental.status.in_(['approved', 'completed', 'active'])
     ).first()
     
     if not rental:
-        return jsonify({"message": "Bu məhsula rəy yazmaq üçün əvvəlcə icarəni tamamlamalısınız."}), 403
+        return jsonify({"message": "Bu məhsula rəy yazmaq üçün əvvəlcə icarə təsdiqlənməlidir."}), 403
     
     from app.models.review import Review
     existing = Review.query.filter_by(rental_id=rental.id).first()

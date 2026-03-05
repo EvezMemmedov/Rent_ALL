@@ -54,3 +54,14 @@ export function useUpdateRentalStatus() {
     },
   });
 }
+
+export function useBookedDates(itemId: string | number | undefined) {
+  return useQuery({
+    queryKey: ['booked-dates', itemId],
+    queryFn: async () => {
+      const res = await api.get(`/rentals/booked-dates/${itemId}`);
+      return res.data;
+    },
+    enabled: !!itemId,
+  });
+}

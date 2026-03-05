@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Calendar, Check, X, MessageCircle, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Navbar } from '@/components/layout/Navbar';
@@ -9,6 +9,7 @@ import { useItem } from '@/hooks/useItems';
 
 export default function OwnerRequests() {
   const { itemId } = useParams();
+  const navigate = useNavigate();
   const { data: itemData } = useItem(itemId!);
   const { data, isLoading } = useOwnerRequests(itemId!);
   const updateStatus = useUpdateRentalStatus();
@@ -129,7 +130,11 @@ export default function OwnerRequests() {
                         <X className="w-4 h-4" />
                         Decline
                       </Button>
-                      <Button variant="ghost" className="gap-2">
+                      <Button
+                        variant="ghost"
+                        className="gap-2"
+                        onClick={() => request.renter?.id && navigate(`/messages/${request.renter.id}`)}
+                      >
                         <MessageCircle className="w-4 h-4" />
                         Message
                       </Button>

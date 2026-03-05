@@ -5,14 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { useItem } from '@/hooks/useItems';
-import { useCreateRental } from '@/hooks/useRentals';
-import { format, addDays, eachDayOfInterval, isSameDay } from 'date-fns';
+import { useCreateRental, useBookedDates } from '@/hooks/useRentals';
+import { format, addDays, eachDayOfInterval, isSameDay, formatDistanceToNow } from 'date-fns';
 
 export default function ItemDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data, isLoading } = useItem(id!);
   const createRental = useCreateRental();
+  const { data: bookedData } = useBookedDates(id);
+  const bookedDates = bookedData?.bookedDates || [];
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedStartDate, setSelectedStartDate] = useState<Date | null>(null);
@@ -36,12 +38,29 @@ export default function ItemDetail() {
     return 'https://via.placeholder.com/800x500';
   };
 
+  const isDateBooked = (date: Date) => {
+    return bookedDates.includes(format(date, 'yyyy-MM-dd'));
+  };
+
+  const hasBookedDateBetween = (start: Date, end: Date) => {
+    const dates = eachDayOfInterval({ start, end });
+    return dates.some(d => isDateBooked(d));
+  };
+
   const handleDateClick = (date: Date) => {
+    if (isDateBooked(date)) return;
+
     if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
       setSelectedStartDate(date);
       setSelectedEndDate(null);
     } else if (date > selectedStartDate) {
-      setSelectedEndDate(date);
+      if (hasBookedDateBetween(selectedStartDate, date)) {
+        // Kesişmə varsa, yenidən başla
+        setSelectedStartDate(date);
+        setSelectedEndDate(null);
+      } else {
+        setSelectedEndDate(date);
+      }
     } else {
       setSelectedStartDate(date);
       setSelectedEndDate(null);
@@ -179,6 +198,45 @@ export default function ItemDetail() {
                   </Button>
                 </div>
               </div>
+
+              {/* Reviews Section */}
+              <div className="mt-10">
+                <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                  <Star className="w-6 h-6 fill-warning text-warning" />
+                  {item.avgRating ? `${item.avgRating} · ${item.reviews?.length} Reviews` : 'No reviews yet'}
+                </h3>
+
+                {item.reviews && item.reviews.length > 0 ? (
+                  <div className="space-y-6">
+                    {item.reviews.map((review: any) => (
+                      <div key={review.id} className="border-b border-border pb-6 last:border-0">
+                        <div className="flex items-center gap-4 mb-3">
+                          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center font-semibold text-muted-foreground">
+                            {review.reviewer?.name?.charAt(0) || '?'}
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-foreground">{review.reviewer?.name || 'User'}</h4>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <span>{formatDistanceToNow(new Date(review.createdAt || review.created_at || new Date()), { addSuffix: true })}</span>
+                              <span>·</span>
+                              <div className="flex items-center text-warning">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <Star key={i} className={`w-3.5 h-3.5 ${i < review.rating ? 'fill-warning' : 'text-muted-foreground opacity-30'}`} />
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        {review.comment && (
+                          <p className="text-foreground leading-relaxed text-sm md:text-base">{review.comment}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground italic">Be the first to leave a review after renting this item!</p>
+                )}
+              </div>
             </div>
 
             <div className="lg:col-span-2">
@@ -199,17 +257,24 @@ export default function ItemDetail() {
                     ))}
                   </div>
                   <div className="grid grid-cols-7 gap-1">
-                    {calendarDays.slice(0, 28).map((date) => (
-                      <button
-                        key={date.toISOString()}
-                        onClick={() => handleDateClick(date)}
-                        className={`py-2 text-sm rounded-lg transition-colors ${
-                          isDateSelected(date) ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-                        }`}
-                      >
-                        {format(date, 'd')}
-                      </button>
-                    ))}
+                    {calendarDays.slice(0, 28).map((date) => {
+                      const booked = isDateBooked(date);
+                      return (
+                        <button
+                          key={date.toISOString()}
+                          disabled={booked}
+                          onClick={() => handleDateClick(date)}
+                          className={`py-2 text-sm rounded-lg transition-colors ${booked
+                              ? 'bg-destructive/10 text-destructive/50 line-through cursor-not-allowed'
+                              : isDateSelected(date)
+                                ? 'bg-primary text-primary-foreground'
+                                : 'hover:bg-muted'
+                            }`}
+                        >
+                          {format(date, 'd')}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
