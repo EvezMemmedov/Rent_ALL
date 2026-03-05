@@ -44,6 +44,7 @@ def create_app(config_name=None):
     from app.routes.admin import admin_bp
     from app.routes.uploads import uploads_bp
     from app.routes.messages import messages_bp
+    from app.routes.reviews import reviews_bp
 
     app.register_blueprint(auth_bp,    url_prefix="/api/auth")
     app.register_blueprint(users_bp,   url_prefix="/api/users")
@@ -52,6 +53,7 @@ def create_app(config_name=None):
     app.register_blueprint(admin_bp,   url_prefix="/api/admin")
     app.register_blueprint(uploads_bp, url_prefix="/api/uploads")
     app.register_blueprint(messages_bp, url_prefix="/api/messages")
+    app.register_blueprint(reviews_bp, url_prefix="/api/reviews")
 
     # JWT xeta handler-ları
     from app.middleware.jwt_handlers import register_jwt_handlers
