@@ -152,3 +152,22 @@ def update_rental_status(rental_id):
         "message": f"Rental status updated to '{new_status}'.",
         "rental": rental.to_dict(),
     }), 200
+
+@rentals_bp.get("/booked-dates/<int:item_id>")
+@jwt_required()
+def get_booked_dates(item_id):
+    from datetime import timedelta
+    
+    rentals = Rental.query.filter(
+        Rental.item_id == item_id,
+        Rental.status.in_(["pending", "approved"])
+    ).all()
+
+    booked_dates = []
+    for rental in rentals:
+        current = rental.start_date
+        while current <= rental.end_date:
+            booked_dates.append(current.isoformat())
+            current += timedelta(days=1)
+
+    return jsonify({"bookedDates": booked_dates}), 200
