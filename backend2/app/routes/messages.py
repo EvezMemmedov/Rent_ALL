@@ -6,7 +6,7 @@ from app.models.message import Message
 messages_bp = Blueprint("messages", __name__)
 
 # Mesaj göndər
-@messages_bp.post("/")
+@messages_bp.post("")
 @jwt_required()
 def send_message():
     current_user_id = get_jwt_identity()

@@ -1,18 +1,20 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Package, User, LogOut, Menu, X } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Package, User, LogOut, Menu, X, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useLogout } from '@/hooks/useAuth';
 import { useAuthStore } from '@/store/authStore';
+import { useUnreadCount } from '@/hooks/useMessages';
 
 export function Navbar() {
   const location = useLocation();
-  const navigate = useNavigate();
   const logout = useLogout();
   const { isAuthenticated, isAdmin, user } = useAuthStore();
+  const { data: unreadData } = useUnreadCount();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
+  const unreadCount = unreadData?.count || 0;
 
   const handleLogout = () => {
     logout();
@@ -65,6 +67,18 @@ export function Navbar() {
               </>
             ) : (
               <div className="flex items-center gap-3">
+                {/* Messages Icon with Badge */}
+                <Link to="/messages" className="relative">
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <MessageCircle className="w-5 h-5" />
+                  </Button>
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center font-semibold">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </Link>
+
                 <Link to="/dashboard">
                   <Button variant="ghost" size="icon" className="rounded-full">
                     <User className="w-5 h-5" />
@@ -91,6 +105,14 @@ export function Navbar() {
                   <Link to="/dashboard" className="nav-link px-4 py-2 rounded-lg hover:bg-accent">Dashboard</Link>
                   <Link to="/my-items" className="nav-link px-4 py-2 rounded-lg hover:bg-accent">My Items</Link>
                   <Link to="/my-rentals" className="nav-link px-4 py-2 rounded-lg hover:bg-accent">My Rentals</Link>
+                  <Link to="/messages" className="nav-link px-4 py-2 rounded-lg hover:bg-accent flex items-center justify-between">
+                    <span>Messages</span>
+                    {unreadCount > 0 && (
+                      <span className="px-2 py-0.5 bg-destructive text-destructive-foreground text-xs rounded-full font-semibold">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </Link>
                 </>
               )}
               {isAdmin && (
