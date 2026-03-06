@@ -48,6 +48,11 @@ export function ItemCard({ item }: ItemCardProps) {
               <span className="text-sm font-medium">
                 {rating ? Number(rating).toFixed(1) : '—'}
               </span>
+              {item.reviewCount > 0 && (
+                <span className="text-xs text-muted-foreground ml-0.5">
+                  ({item.reviewCount})
+                </span>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-1 text-muted-foreground text-sm mb-3">

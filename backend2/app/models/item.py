@@ -69,7 +69,7 @@ class Item(db.Model):
             round(sum(r.rating for r in reviews_list) / review_count, 1)
             if review_count > 0 else 0
         )
-        data["averageRating"] = avg_rating
+        data["avgRating"] = avg_rating
         data["reviewCount"] = review_count
 
         if include_owner and self.owner:
