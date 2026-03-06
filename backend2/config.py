@@ -9,7 +9,13 @@ class Config:
     # Flask
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
 
-    # MySQL Database
+    # Database — Render-de DATABASE_URL varsa onu islet (PostgreSQL)
+    # Lokal inkisafda ise MySQL-e qosul
+    _database_url = os.getenv("DATABASE_URL")
+    if _database_url and _database_url.startswith("postgres://"):
+        # Render-in kohnə postgresql:// formatini SQLAlchemy ucun duzelt
+        _database_url = _database_url.replace("postgres://", "postgresql://", 1)
+
     DB_HOST = os.getenv("DB_HOST", "localhost")
     DB_PORT = os.getenv("DB_PORT", "3306")
     DB_USER = os.getenv("DB_USER", "root")
@@ -17,7 +23,8 @@ class Config:
     DB_NAME = os.getenv("DB_NAME", "rentall_db")
 
     SQLALCHEMY_DATABASE_URI = (
-        f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+        _database_url if _database_url
+        else f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
