@@ -7,7 +7,7 @@ interface ItemCardProps {
 
 export function ItemCard({ item }: ItemCardProps) {
   const rating = item.avgRating || item.rating || 0;
-  
+
 
   let image = '/placeholder.svg';
   if (item.images?.[0]) {
@@ -15,7 +15,8 @@ export function ItemCard({ item }: ItemCardProps) {
     if (img.startsWith('http')) {
       image = img;
     } else if (img.startsWith('/api/uploads')) {
-      image = `http://127.0.0.1:5000${img}`;
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000';
+      image = `${baseUrl}${img}`;
     } else {
       image = `/placeholder.svg`;
     }

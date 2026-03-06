@@ -20,7 +20,8 @@ export default function OwnerRequests() {
   const getImageUrl = (img: string | undefined) => {
     if (!img) return 'https://via.placeholder.com/80';
     if (img.startsWith('http')) return img;
-    if (img.startsWith('/api/uploads')) return `http://127.0.0.1:5000${img}`;
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000';
+    if (img.startsWith('/api/uploads')) return `${baseUrl}${img}`;
     return 'https://via.placeholder.com/80';
   };
 

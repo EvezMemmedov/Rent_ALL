@@ -119,10 +119,10 @@ export default function VerifyUser() {
                     <p className="text-sm font-medium text-foreground mb-2">Front Side</p>
                     <div
                       className="aspect-[3/2] rounded-lg bg-muted overflow-hidden cursor-pointer"
-                      onClick={() => setZoomedImage(`http://127.0.0.1:5000${user.idCardFront}`)}
+                      onClick={() => setZoomedImage(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000'}${user.idCardFront}`)}
                     >
                       <img
-                        src={`http://127.0.0.1:5000${user.idCardFront}`}
+                        src={`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000'}${user.idCardFront}`}
                         alt="ID Front"
                         className="w-full h-full object-cover hover:opacity-90 transition-opacity"
                       />
@@ -135,10 +135,10 @@ export default function VerifyUser() {
                     <p className="text-sm font-medium text-foreground mb-2">Back Side</p>
                     <div
                       className="aspect-[3/2] rounded-lg bg-muted overflow-hidden cursor-pointer"
-                      onClick={() => setZoomedImage(`http://127.0.0.1:5000${user.idCardBack}`)}
+                      onClick={() => setZoomedImage(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000'}${user.idCardBack}`)}
                     >
                       <img
-                        src={`http://127.0.0.1:5000${user.idCardBack}`}
+                        src={`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000'}${user.idCardBack}`}
                         alt="ID Back"
                         className="w-full h-full object-cover hover:opacity-90 transition-opacity"
                       />

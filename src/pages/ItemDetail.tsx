@@ -34,7 +34,8 @@ export default function ItemDetail() {
   const getImageUrl = (img: string | undefined) => {
     if (!img) return 'https://via.placeholder.com/800x500';
     if (img.startsWith('http')) return img;
-    if (img.startsWith('/api/uploads')) return `http://127.0.0.1:5000${img}`;
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000';
+    if (img.startsWith('/api/uploads')) return `${baseUrl}${img}`;
     return 'https://via.placeholder.com/800x500';
   };
 
@@ -265,10 +266,10 @@ export default function ItemDetail() {
                           disabled={booked}
                           onClick={() => handleDateClick(date)}
                           className={`py-2 text-sm rounded-lg transition-colors ${booked
-                              ? 'bg-destructive/10 text-destructive/50 line-through cursor-not-allowed'
-                              : isDateSelected(date)
-                                ? 'bg-primary text-primary-foreground'
-                                : 'hover:bg-muted'
+                            ? 'bg-destructive/10 text-destructive/50 line-through cursor-not-allowed'
+                            : isDateSelected(date)
+                              ? 'bg-primary text-primary-foreground'
+                              : 'hover:bg-muted'
                             }`}
                         >
                           {format(date, 'd')}

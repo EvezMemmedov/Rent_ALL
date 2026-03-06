@@ -9,8 +9,6 @@ items_bp = Blueprint("items", __name__)
 
 
 @items_bp.get("")
-@jwt_required()
-@approved_required
 def browse_items():
     """Bütün əşyaları gəz — axtarış, filtr, sort dəstəyi ilə."""
     search = request.args.get("search", "").strip()
@@ -65,8 +63,6 @@ def my_items():
 
 
 @items_bp.get("/<int:item_id>")
-@jwt_required()
-@approved_required
 def get_item(item_id):
     """Əşya detalları."""
     item = Item.query.get_or_404(item_id)

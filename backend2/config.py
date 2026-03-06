@@ -38,7 +38,8 @@ class Config:
     JWT_HEADER_TYPE = "Bearer"
 
     # File Upload
-    UPLOAD_FOLDER = os.getenv("UPLOAD_FOLDER", "uploads")
+    base_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    UPLOAD_FOLDER = os.getenv("UPLOAD_FOLDER", os.path.join(base_dir, "uploads"))
     MAX_CONTENT_LENGTH = int(os.getenv("MAX_FILE_SIZE_MB", 5)) * 1024 * 1024
     ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp", "gif"}
 

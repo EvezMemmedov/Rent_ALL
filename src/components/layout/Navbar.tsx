@@ -32,11 +32,11 @@ export function Navbar() {
           </Link>
 
           <div className="hidden md:flex items-center gap-1">
+            <Link to="/browse" className={`nav-link px-4 py-2 rounded-lg ${isActive('/browse') ? 'nav-link-active bg-accent' : ''}`}>
+              Browse
+            </Link>
             {isAuthenticated && user?.status === 'approved' && (
               <>
-                <Link to="/browse" className={`nav-link px-4 py-2 rounded-lg ${isActive('/browse') ? 'nav-link-active bg-accent' : ''}`}>
-                  Browse
-                </Link>
                 <Link to="/dashboard" className={`nav-link px-4 py-2 rounded-lg ${isActive('/dashboard') ? 'nav-link-active bg-accent' : ''}`}>
                   Dashboard
                 </Link>
@@ -99,9 +99,9 @@ export function Navbar() {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-border animate-fade-in">
             <div className="flex flex-col gap-2">
+              <Link to="/browse" className="nav-link px-4 py-2 rounded-lg hover:bg-accent">Browse</Link>
               {isAuthenticated && user?.status === 'approved' && (
                 <>
-                  <Link to="/browse" className="nav-link px-4 py-2 rounded-lg hover:bg-accent">Browse</Link>
                   <Link to="/dashboard" className="nav-link px-4 py-2 rounded-lg hover:bg-accent">Dashboard</Link>
                   <Link to="/my-items" className="nav-link px-4 py-2 rounded-lg hover:bg-accent">My Items</Link>
                   <Link to="/my-rentals" className="nav-link px-4 py-2 rounded-lg hover:bg-accent">My Rentals</Link>

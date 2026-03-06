@@ -48,32 +48,33 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/pending-approval" element={<PendingApproval />} />
-          
+          {/* Public Pages */}
+          <Route path="/browse" element={<Browse />} />
+          <Route path="/items/:id" element={<ItemDetail />} />
+
           {/* Protected Routes */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/browse" element={<ProtectedRoute><Browse /></ProtectedRoute>} />
-          <Route path="/items/:id" element={<ProtectedRoute><ItemDetail /></ProtectedRoute>} />
           <Route path="/add-item" element={<ProtectedRoute><AddItem /></ProtectedRoute>} />
           <Route path="/my-rentals" element={<ProtectedRoute><MyRentals /></ProtectedRoute>} />
           <Route path="/my-items" element={<ProtectedRoute><MyItems /></ProtectedRoute>} />
           <Route path="/owner-requests/:itemId" element={<ProtectedRoute><OwnerRequests /></ProtectedRoute>} />
-          
+
           {/* Messages Routes */}
           <Route path="/messages" element={<ProtectedRoute><Conversations /></ProtectedRoute>} />
           <Route path="/messages/:userId" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
-          
+
           {/* Public Pages */}
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/help-center" element={<HelpCenter />} />
           <Route path="/contact-us" element={<ContactUs />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          
+
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
           <Route path="/admin/pending-users" element={<AdminRoute><PendingUsers /></AdminRoute>} />
           <Route path="/admin/verify-user/:userId" element={<AdminRoute><VerifyUser /></AdminRoute>} />
-          
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

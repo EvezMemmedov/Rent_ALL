@@ -163,7 +163,6 @@ def update_rental_status(rental_id):
     }), 200
 
 @rentals_bp.get("/booked-dates/<int:item_id>")
-@jwt_required()
 def get_booked_dates(item_id):
     from datetime import timedelta
     

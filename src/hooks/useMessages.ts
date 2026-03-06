@@ -44,6 +44,7 @@ export function useUnreadCount() {
       const res = await api.get('/messages/unread-count');
       return res.data;
     },
+    enabled: !!localStorage.getItem('rentall_token'),
     refetchInterval: 5000,
   });
 }
