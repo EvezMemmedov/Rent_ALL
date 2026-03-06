@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Package, Clock, Mail, ArrowLeft } from 'lucide-react';
+import { Package, Clock, Bell, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function PendingApproval() {
@@ -19,20 +19,20 @@ export default function PendingApproval() {
           <div className="w-16 h-16 rounded-full bg-warning/10 flex items-center justify-center mx-auto mb-6">
             <Clock className="w-8 h-8 text-warning" />
           </div>
-          
+
           <h1 className="text-2xl font-bold text-foreground mb-3">Verification Pending</h1>
           <p className="text-muted-foreground mb-6">
-            Thank you for registering! Our team is reviewing your documents. 
+            Thank you for registering! Our team is reviewing your documents.
             This usually takes 1-2 business days.
           </p>
 
           <div className="bg-muted/50 rounded-lg p-4 mb-6">
             <div className="flex items-center gap-3 text-left">
               <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center shrink-0">
-                <Mail className="w-5 h-5 text-primary" />
+                <Bell className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <p className="text-sm font-medium text-foreground">We'll notify you by email</p>
+                <p className="text-sm font-medium text-foreground">Check back in 1-2 business days</p>
                 <p className="text-xs text-muted-foreground">Once your account is approved, you'll get full access</p>
               </div>
             </div>
