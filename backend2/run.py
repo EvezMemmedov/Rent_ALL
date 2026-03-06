@@ -4,12 +4,14 @@ from flask_migrate import upgrade
 
 app = create_app(os.getenv("FLASK_ENV", "development"))
 
-# Auto-run migrations on startup (for Render and production)
+# Auto-run migrations and seeding on startup (for Render and production)
 with app.app_context():
     try:
         upgrade()
+        from seed import seed
+        seed()
     except Exception as e:
-        print(f"Migration warning: {e}")
+        print(f"Migration/Seed warning: {e}")
 
 
 if __name__ == "__main__":
