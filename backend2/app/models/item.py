@@ -20,7 +20,7 @@ class Item(db.Model):
 
     owner_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
-    is_hidden = db.Column(db.Boolean, default=False, nullable=False)  # ← əlavə edildi
+    is_hidden = db.Column(db.Boolean, default=False, nullable=False)
 
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(
@@ -58,9 +58,20 @@ class Item(db.Model):
             "status": self.status,
             "images": self.get_images(),
             "ownerId": self.owner_id,
-            "isHidden": self.is_hidden,  # ← əlavə edildi
+            "isHidden": self.is_hidden,
             "createdAt": self.created_at.isoformat() if self.created_at else None,
         }
+
+        # Review statistikası
+        reviews_list = self.reviews.all()
+        review_count = len(reviews_list)
+        avg_rating = (
+            round(sum(r.rating for r in reviews_list) / review_count, 1)
+            if review_count > 0 else 0
+        )
+        data["averageRating"] = avg_rating
+        data["reviewCount"] = review_count
+
         if include_owner and self.owner:
             data["owner"] = {
                 "id": self.owner.id,

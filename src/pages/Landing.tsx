@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { ItemCard } from '@/components/ui/ItemCard';
-import { mockItems } from '@/data/mockData';
+import { useItems } from '@/hooks/useItems';
 
 const categories = [
   { icon: Car, label: 'Cars', count: 1240 },
@@ -33,6 +33,8 @@ const features = [
 ];
 
 export default function Landing() {
+  const { data } = useItems({ sortBy: 'newest' });
+  const featuredItems = data?.items?.slice(0, 6) || [];
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -108,7 +110,7 @@ export default function Landing() {
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockItems.slice(0, 6).map((item) => (
+            {featuredItems.map((item) => (
               <ItemCard key={item.id} item={item} />
             ))}
           </div>

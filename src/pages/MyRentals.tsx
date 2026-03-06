@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Calendar, Star, MessageCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Navbar } from '@/components/layout/Navbar';
@@ -13,7 +13,6 @@ type Tab = 'all' | 'active' | 'completed';
 export default function MyRentals() {
   const [activeTab, setActiveTab] = useState<Tab>('all');
   const [showReviewModal, setShowReviewModal] = useState(false);
-  const navigate = useNavigate();
   const [selectedRental, setSelectedRental] = useState<any>(null);
   const [rating, setRating] = useState(5);
   const [hoveredRating, setHoveredRating] = useState(0);
@@ -22,7 +21,7 @@ export default function MyRentals() {
   const { data, isLoading } = useMyRentals();
   const updateStatus = useUpdateRentalStatus();
   const createReview = useCreateReview(selectedRental?.itemId);
-
+  
   const rentals = data?.rentals || [];
 
   const filteredRentals = rentals.filter((rental: any) => {
@@ -39,7 +38,7 @@ export default function MyRentals() {
   const handleSubmitReview = () => {
     if (!selectedRental || rating === 0) return;
     createReview.mutate(
-      { rating, comment: reviewText },
+      { rentalId: selectedRental.id, rating, comment: reviewText},
       {
         onSuccess: () => {
           setShowReviewModal(false);
@@ -54,8 +53,7 @@ export default function MyRentals() {
   const getImageUrl = (img: string | undefined) => {
     if (!img) return 'https://via.placeholder.com/128x96';
     if (img.startsWith('http')) return img;
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000';
-    if (img.startsWith('/api/uploads')) return `${baseUrl}${img}`;
+    if (img.startsWith('/api/uploads')) return `http://127.0.0.1:5000${img}`;
     return 'https://via.placeholder.com/128x96';
   };
 
@@ -75,10 +73,11 @@ export default function MyRentals() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${activeTab === tab
-                  ? 'text-primary border-b-2 border-primary -mb-px'
-                  : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+                  activeTab === tab
+                    ? 'text-primary border-b-2 border-primary -mb-px'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
@@ -127,7 +126,7 @@ export default function MyRentals() {
                       )}
 
                       <div className="flex flex-wrap gap-2 mt-4">
-                        {['approved', 'active', 'completed'].includes(rental.status) && !rental.hasReview && (
+                        {rental.status === 'approved' && (
                           <Button
                             size="sm"
                             variant="outline"
@@ -153,12 +152,7 @@ export default function MyRentals() {
                             Cancel Request
                           </Button>
                         )}
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="gap-2"
-                          onClick={() => rental.item?.ownerId && navigate(`/messages/${rental.item.ownerId}`)}
-                        >
+                        <Button size="sm" variant="ghost" className="gap-2">
                           <MessageCircle className="w-4 h-4" />
                           Message Owner
                         </Button>
@@ -208,10 +202,11 @@ export default function MyRentals() {
                     className="p-1 transition-transform hover:scale-110"
                   >
                     <Star
-                      className={`w-8 h-8 transition-colors ${star <= (hoveredRating || rating)
-                        ? 'fill-warning text-warning'
-                        : 'text-muted-foreground'
-                        }`}
+                      className={`w-8 h-8 transition-colors ${
+                        star <= (hoveredRating || rating)
+                          ? 'fill-warning text-warning'
+                          : 'text-muted-foreground'
+                      }`}
                     />
                   </button>
                 ))}
