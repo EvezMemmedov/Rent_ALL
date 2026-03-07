@@ -3,6 +3,8 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 from app.models.item import Item
 from app.models.user import User
+from app.models.review import Review
+from app.models.rental import Rental
 from app.middleware.decorators import approved_required
 
 items_bp = Blueprint("items", __name__)
@@ -148,12 +150,23 @@ def delete_item(item_id):
     item = Item.query.get_or_404(item_id)
     
     current_user = User.query.get(user_id)
+    if not current_user:
+        return jsonify({"message": "İstifadəçi tapılmadı."}), 404
+
     if item.owner_id != user_id and current_user.role != "admin":
         return jsonify({"message": "Bu əşyanı yalnız sahibi və ya admin silə bilər."}), 403
-
-    db.session.delete(item)
-    db.session.commit()
-    return jsonify({"message": "Item deleted successfully."}), 200
+    
+    try:
+        # Related data-nı əllə silirik ki, xarici açar (FK) xətası olmasın
+        Review.query.filter_by(item_id=item_id).delete()
+        Rental.query.filter_by(item_id=item_id).delete()
+        
+        db.session.delete(item)
+        db.session.commit()
+        return jsonify({"message": "Əşya uğurla silindi."}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": f"Silinmə zamanı xəta: {str(e)}"}), 500
 
 
 @items_bp.patch("/<int:item_id>/hide")
