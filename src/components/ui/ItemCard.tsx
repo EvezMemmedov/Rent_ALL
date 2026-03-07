@@ -1,12 +1,24 @@
-import { Star, MapPin } from 'lucide-react';
+import { Star, MapPin, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuthStore } from '@/store/authStore';
+import { useDeleteItem } from '@/hooks/useItems';
 
 interface ItemCardProps {
   item: any;
 }
 
 export function ItemCard({ item }: ItemCardProps) {
+  const { user } = useAuthStore();
+  const deleteItem = useDeleteItem();
   const rating = item.avgRating || item.rating || 0;
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (confirm('Bu əşyanı silmək istədiyinizə əminsiniz? (Admin Action)')) {
+      deleteItem.mutate(item.id);
+    }
+  };
 
 
   let image = '/placeholder.svg';
@@ -38,6 +50,18 @@ export function ItemCard({ item }: ItemCardProps) {
             <span className="px-2.5 py-1 bg-card/90 backdrop-blur-sm rounded-full text-xs font-medium capitalize">
               {item.category}
             </span>
+          </div>
+          <div className="absolute top-3 right-3 flex gap-2">
+            {user?.role === 'admin' && (
+              <button
+                onClick={handleDelete}
+                className="p-2 bg-destructive/90 backdrop-blur-sm rounded-full text-destructive-foreground hover:bg-destructive transition-colors shadow-sm"
+                title="Delete Item"
+                disabled={deleteItem.isPending}
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
         <div className="p-4">

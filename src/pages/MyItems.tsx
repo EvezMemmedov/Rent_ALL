@@ -88,7 +88,7 @@ export default function MyItems() {
                           {showMenu === item.id && (
                             <div className="absolute right-0 top-full mt-1 w-40 card-static shadow-lg py-1 z-10 animate-fade-in">
                               <Link
-                                to={`/items/${item.id}`}
+                                to={`/edit-item/${item.id}`}
                                 className="w-full px-4 py-2 text-sm text-left hover:bg-muted flex items-center gap-2"
                               >
                                 <Edit className="w-4 h-4" />

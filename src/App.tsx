@@ -15,6 +15,7 @@ import ItemDetail from "./pages/ItemDetail";
 import AddItem from "./pages/AddItem";
 import MyRentals from "./pages/MyRentals";
 import MyItems from "./pages/MyItems";
+import EditItem from "./pages/EditItem";
 import OwnerRequests from "./pages/OwnerRequests";
 import Conversations from "./pages/Conversations";
 import Messages from "./pages/Messages";
@@ -57,6 +58,7 @@ const App = () => (
           <Route path="/add-item" element={<ProtectedRoute><AddItem /></ProtectedRoute>} />
           <Route path="/my-rentals" element={<ProtectedRoute><MyRentals /></ProtectedRoute>} />
           <Route path="/my-items" element={<ProtectedRoute><MyItems /></ProtectedRoute>} />
+          <Route path="/edit-item/:id" element={<ProtectedRoute><EditItem /></ProtectedRoute>} />
           <Route path="/owner-requests/:itemId" element={<ProtectedRoute><OwnerRequests /></ProtectedRoute>} />
 
           {/* Messages Routes */}
