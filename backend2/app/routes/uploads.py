@@ -1,8 +1,7 @@
-import os
-import uuid
-from flask import Blueprint, request, jsonify, current_app, send_from_directory
+import cloudinary
+import cloudinary.uploader
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required
-from PIL import Image
 
 uploads_bp = Blueprint("uploads", __name__)
 
@@ -17,22 +16,25 @@ def save_image(file, subfolder="items"):
     if not allowed_file(file.filename):
         return None, "Only JPG, PNG, WEBP, and GIF files are allowed."
 
-    ext = file.filename.rsplit(".", 1)[1].lower()
-    filename = f"{uuid.uuid4().hex}.{ext}"
+    # Cloudinary konfiqurasiyası
+    cloudinary.config(
+        cloud_name=current_app.config["CLOUDINARY_CLOUD_NAME"],
+        api_key=current_app.config["CLOUDINARY_API_KEY"],
+        api_secret=current_app.config["CLOUDINARY_API_SECRET"],
+        secure=True
+    )
 
-    upload_folder = current_app.config["UPLOAD_FOLDER"]
-    subfolder_path = os.path.join(upload_folder, subfolder)
-    os.makedirs(subfolder_path, exist_ok=True)
-
-    filepath = os.path.join(subfolder_path, filename)
-
-    img = Image.open(file)
-    img = img.convert("RGB")
-    max_size = (1200, 1200)
-    img.thumbnail(max_size, Image.LANCZOS)
-    img.save(filepath, optimize=True, quality=85)
-
-    return f"/api/uploads/{subfolder}/{filename}", None
+    try:
+        # Cloudinary-ə yüklə
+        upload_result = cloudinary.uploader.upload(
+            file,
+            folder=f"rentall/{subfolder}",
+            resource_type="image"
+        )
+        return upload_result["secure_url"], None
+    except Exception as e:
+        print(f"Cloudinary upload error: {e}")
+        return None, "Şəkil yüklənərkən xəta baş verdi."
 
 
 @uploads_bp.post("/image")
