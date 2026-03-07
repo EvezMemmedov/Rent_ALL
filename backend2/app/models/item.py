@@ -31,8 +31,8 @@ class Item(db.Model):
 
     # Relations
     owner = db.relationship("User", back_populates="items", foreign_keys=[owner_id])
-    rentals = db.relationship("Rental", back_populates="item", lazy="dynamic")
-    reviews = db.relationship("Review", back_populates="item", lazy="dynamic")
+    rentals = db.relationship("Rental", back_populates="item", lazy="dynamic", cascade="all, delete-orphan")
+    reviews = db.relationship("Review", back_populates="item", lazy="dynamic", cascade="all, delete-orphan")
 
     def get_images(self):
         import json
