@@ -11,6 +11,13 @@ export default function VerifyUser() {
   const navigate = useNavigate();
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000';
+
+  const getImageUrl = (url: string | null | undefined) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    return `${baseUrl}${url}`;
+  };
 
   const { data, isLoading } = useAdminUser(userId!);
   const verifyUser = useVerifyUser();
@@ -119,10 +126,10 @@ export default function VerifyUser() {
                     <p className="text-sm font-medium text-foreground mb-2">Front Side</p>
                     <div
                       className="aspect-[3/2] rounded-lg bg-muted overflow-hidden cursor-pointer"
-                      onClick={() => setZoomedImage(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000'}${user.idCardFront}`)}
+                      onClick={() => setZoomedImage(getImageUrl(user.idCardFront))}
                     >
                       <img
-                        src={`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000'}${user.idCardFront}`}
+                        src={getImageUrl(user.idCardFront)}
                         alt="ID Front"
                         className="w-full h-full object-cover hover:opacity-90 transition-opacity"
                       />
@@ -135,10 +142,10 @@ export default function VerifyUser() {
                     <p className="text-sm font-medium text-foreground mb-2">Back Side</p>
                     <div
                       className="aspect-[3/2] rounded-lg bg-muted overflow-hidden cursor-pointer"
-                      onClick={() => setZoomedImage(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000'}${user.idCardBack}`)}
+                      onClick={() => setZoomedImage(getImageUrl(user.idCardBack))}
                     >
                       <img
-                        src={`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5000'}${user.idCardBack}`}
+                        src={getImageUrl(user.idCardBack)}
                         alt="ID Back"
                         className="w-full h-full object-cover hover:opacity-90 transition-opacity"
                       />

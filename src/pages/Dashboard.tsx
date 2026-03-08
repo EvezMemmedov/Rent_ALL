@@ -29,11 +29,16 @@ export default function Dashboard() {
     return 'https://via.placeholder.com/80';
   };
 
+  const ratedItems = items.filter((i: any) => i.avgRating > 0);
+  const avgRating = ratedItems.length > 0
+    ? (ratedItems.reduce((sum: number, i: any) => sum + i.avgRating, 0) / ratedItems.length).toFixed(1)
+    : '—';
+
   const stats = [
     { label: 'Active Rentals', value: String(activeRentals), icon: Calendar, trend: 'Hal-hazırda aktiv' },
     { label: 'Total Earnings', value: `$${totalEarnings.toFixed(0)}`, icon: DollarSign, trend: 'Tamamlanmış icarələr' },
     { label: 'Items Listed', value: String(items.length), icon: Package, trend: 'Siyahıya alınmış əşyalar' },
-    { label: 'Avg Rating', value: '4.8', icon: Star, trend: 'Based on reviews' },
+    { label: 'Avg Rating', value: avgRating, icon: Star, trend: 'Based on reviews' },
   ];
 
   return (

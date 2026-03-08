@@ -37,7 +37,7 @@ export function Navbar() {
             </Link>
             {isAuthenticated && user?.status === 'approved' && (
               <>
-                <Link to="/dashboard" className={`nav-link px-4 py-2 rounded-lg ${isActive('/dashboard') ? 'nav-link-active bg-accent' : ''}`}>
+                <Link to={isAdmin ? "/admin" : "/dashboard"} className={`nav-link px-4 py-2 rounded-lg ${isActive(isAdmin ? '/admin' : '/dashboard') ? 'nav-link-active bg-accent' : ''}`}>
                   Dashboard
                 </Link>
                 <Link to="/my-items" className={`nav-link px-4 py-2 rounded-lg ${isActive('/my-items') ? 'nav-link-active bg-accent' : ''}`}>
@@ -79,7 +79,7 @@ export function Navbar() {
                   )}
                 </Link>
 
-                <Link to="/dashboard">
+                <Link to={isAdmin ? "/admin" : "/dashboard"}>
                   <Button variant="ghost" size="icon" className="rounded-full">
                     <User className="w-5 h-5" />
                   </Button>
@@ -102,7 +102,7 @@ export function Navbar() {
               <Link to="/browse" className="nav-link px-4 py-2 rounded-lg hover:bg-accent">Browse</Link>
               {isAuthenticated && user?.status === 'approved' && (
                 <>
-                  <Link to="/dashboard" className="nav-link px-4 py-2 rounded-lg hover:bg-accent">Dashboard</Link>
+                  <Link to={isAdmin ? "/admin" : "/dashboard"} className="nav-link px-4 py-2 rounded-lg hover:bg-accent">Dashboard</Link>
                   <Link to="/my-items" className="nav-link px-4 py-2 rounded-lg hover:bg-accent">My Items</Link>
                   <Link to="/my-rentals" className="nav-link px-4 py-2 rounded-lg hover:bg-accent">My Rentals</Link>
                   <Link to="/messages" className="nav-link px-4 py-2 rounded-lg hover:bg-accent flex items-center justify-between">
