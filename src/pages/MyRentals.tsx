@@ -86,7 +86,7 @@ export default function MyRentals() {
           </div>
 
           {isLoading ? (
-            <p className="text-muted-foreground text-center py-16">Yüklənir...</p>
+            <p className="text-muted-foreground text-center py-16">Loading...</p>
           ) : filteredRentals.length > 0 ? (
             <div className="space-y-4">
               {filteredRentals.map((rental: any) => (
@@ -186,7 +186,7 @@ export default function MyRentals() {
 
             {createReview.isError && (
               <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-                {(createReview.error as any)?.response?.data?.message || 'Xəta baş verdi.'}
+                {(createReview.error as any)?.response?.data?.message || 'Error occurred.'}
               </div>
             )}
 

@@ -10,7 +10,7 @@ export default function Conversations() {
   const { data: messages, isLoading } = useConversations();
   const { user } = useAuthStore();
 
-  // Mesajları unique conversation-lara group et
+  // Group messages into unique conversations
   const conversations = messages?.reduce((acc: any[], msg: any) => {
     const otherUserId = msg.sender_id === user?.id ? msg.receiver_id : msg.sender_id;
     const existing = acc.find((c) => c.otherUserId === otherUserId);
@@ -35,7 +35,7 @@ export default function Conversations() {
           <h1 className="text-2xl font-bold mb-6">Messages</h1>
 
           {isLoading ? (
-            <p className="text-muted-foreground text-center py-16">Yüklənir...</p>
+            <p className="text-muted-foreground text-center py-16">Loading...</p>
           ) : conversations.length > 0 ? (
             <div className="space-y-2">
               {conversations.map((conv: any) => (

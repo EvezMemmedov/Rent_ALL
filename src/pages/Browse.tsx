@@ -51,7 +51,7 @@ export default function Browse() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar isAuthenticated={true} userStatus="approved" />
+      <Navbar />
 
       <main className="flex-1 py-8">
         <div className="page-container">
@@ -116,11 +116,10 @@ export default function Browse() {
               <button
                 key={cat.value}
                 onClick={() => setSelectedCategory(cat.value)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  selectedCategory === cat.value
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                }`}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${selectedCategory === cat.value
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                  }`}
               >
                 {cat.label}
               </button>
@@ -129,7 +128,7 @@ export default function Browse() {
 
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm text-muted-foreground">
-              {isLoading ? 'Yüklənir...' : `${items.length} items found`}
+              {isLoading ? 'Loading...' : `${items.length} items found`}
             </p>
             <select
               className="text-sm border border-input rounded-lg px-3 py-2 bg-background"
@@ -144,11 +143,11 @@ export default function Browse() {
 
           {isLoading ? (
             <div className="text-center py-16">
-              <p className="text-muted-foreground">Yüklənir...</p>
+              <p className="text-muted-foreground">Loading...</p>
             </div>
           ) : isError ? (
             <div className="text-center py-16">
-              <p className="text-destructive">Xəta baş verdi. Yenidən cəhd edin.</p>
+              <p className="text-destructive">Error occurred. Please try again.</p>
             </div>
           ) : items.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

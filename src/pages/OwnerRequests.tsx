@@ -57,12 +57,12 @@ export default function OwnerRequests() {
             )}
             <div>
               <h1 className="text-2xl font-bold text-foreground mb-1">Rental Requests</h1>
-              <p className="text-muted-foreground">{item?.title || 'Yüklənir...'}</p>
+              <p className="text-muted-foreground">{item?.title || 'Loading...'}</p>
             </div>
           </div>
 
           {isLoading ? (
-            <p className="text-muted-foreground text-center py-16">Yüklənir...</p>
+            <p className="text-muted-foreground text-center py-16">Loading...</p>
           ) : requests.length > 0 ? (
             <div className="space-y-4">
               {requests.map((request: any) => (

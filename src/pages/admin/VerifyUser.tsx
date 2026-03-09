@@ -43,7 +43,7 @@ export default function VerifyUser() {
         <Navbar />
         <main className="py-8">
           <div className="page-container max-w-4xl">
-            <p className="text-muted-foreground">Yüklənir...</p>
+            <p className="text-muted-foreground">Loading...</p>
           </div>
         </main>
       </div>
@@ -56,9 +56,9 @@ export default function VerifyUser() {
         <Navbar />
         <main className="py-8">
           <div className="page-container max-w-4xl">
-            <p className="text-destructive">İstifadəçi tapılmadı.</p>
+            <p className="text-destructive">User not found.</p>
             <Link to="/admin/pending-users" className="text-primary hover:underline mt-2 inline-block">
-              Geri qayıt
+              Back
             </Link>
           </div>
         </main>
@@ -134,7 +134,7 @@ export default function VerifyUser() {
                         className="w-full h-full object-cover hover:opacity-90 transition-opacity"
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">Böyütmək üçün klik et</p>
+                    <p className="text-xs text-muted-foreground mt-1">Click to zoom</p>
                   </div>
                 )}
                 {user.idCardBack && (
@@ -150,13 +150,13 @@ export default function VerifyUser() {
                         className="w-full h-full object-cover hover:opacity-90 transition-opacity"
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">Böyütmək üçün klik et</p>
+                    <p className="text-xs text-muted-foreground mt-1">Click to zoom</p>
                   </div>
                 )}
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
-                <p>Bu istifadəçi ID şəkli yükləməyib.</p>
+                <p>This user has not uploaded an ID card.</p>
               </div>
             )}
           </div>
@@ -170,7 +170,7 @@ export default function VerifyUser() {
 
             {verifyUser.isError && (
               <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-                {(verifyUser.error as any)?.response?.data?.message || 'Xəta baş verdi.'}
+                {(verifyUser.error as any)?.response?.data?.message || 'Error occurred.'}
               </div>
             )}
 
@@ -181,7 +181,7 @@ export default function VerifyUser() {
                 disabled={verifyUser.isPending || user.status === 'approved'}
               >
                 <Check className="w-4 h-4" />
-                {verifyUser.isPending ? 'Gözləyin...' : 'Approve User'}
+                {verifyUser.isPending ? 'Loading...' : 'Approve User'}
               </Button>
               <Button
                 onClick={() => setShowRejectModal(true)}
@@ -217,14 +217,14 @@ export default function VerifyUser() {
           <div className="card-static w-full max-w-md p-6 animate-scale-in">
             <h2 className="text-xl font-bold text-foreground mb-2">Reject Application</h2>
             <p className="text-muted-foreground mb-6">
-              Bu istifadəçinin müraciəti rədd ediləcək.
+              This user's application will be rejected.
             </p>
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1" onClick={() => setShowRejectModal(false)}>
                 Cancel
               </Button>
               <Button variant="destructive" className="flex-1" onClick={handleReject} disabled={verifyUser.isPending}>
-                {verifyUser.isPending ? 'Gözləyin...' : 'Confirm Rejection'}
+                {verifyUser.isPending ? 'Loading...' : 'Confirm Rejection'}
               </Button>
             </div>
           </div>

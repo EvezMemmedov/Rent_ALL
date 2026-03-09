@@ -74,7 +74,7 @@ export default function Messages() {
           {/* Messages */}
           <div className="flex-1 overflow-y-auto space-y-4 mb-4">
             {isLoading ? (
-              <p className="text-muted-foreground text-center py-8">Yüklənir...</p>
+              <p className="text-muted-foreground text-center py-8">Loading...</p>
             ) : messages && messages.length > 0 ? (
               <>
                 {messages.map((msg: any) => {
@@ -86,8 +86,8 @@ export default function Messages() {
                     >
                       <div
                         className={`max-w-[70%] rounded-2xl px-4 py-2 ${isMine
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted text-foreground'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted text-foreground'
                           }`}
                       >
                         <p className="break-words">{msg.content}</p>

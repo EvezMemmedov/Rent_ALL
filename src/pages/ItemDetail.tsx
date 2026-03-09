@@ -56,7 +56,6 @@ export default function ItemDetail() {
       setSelectedEndDate(null);
     } else if (date > selectedStartDate) {
       if (hasBookedDateBetween(selectedStartDate, date)) {
-        // Kesişmə varsa, yenidən başla
         setSelectedStartDate(date);
         setSelectedEndDate(null);
       } else {
@@ -97,7 +96,7 @@ export default function ItemDetail() {
       <div className="min-h-screen flex flex-col bg-background">
         <Navbar />
         <main className="flex-1 flex items-center justify-center">
-          <p className="text-muted-foreground">Yüklənir...</p>
+          <p className="text-muted-foreground">Loading...</p>
         </main>
       </div>
     );
@@ -108,7 +107,7 @@ export default function ItemDetail() {
       <div className="min-h-screen flex flex-col bg-background">
         <Navbar />
         <main className="flex-1 flex items-center justify-center">
-          <p className="text-destructive">Əşya tapılmadı.</p>
+          <p className="text-destructive">Item not found.</p>
         </main>
       </div>
     );
@@ -349,7 +348,7 @@ export default function ItemDetail() {
 
             {createRental.isError && (
               <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-                {(createRental.error as any)?.response?.data?.message || 'Xəta baş verdi.'}
+                {(createRental.error as any)?.response?.data?.message || 'Error occurred.'}
               </div>
             )}
 
@@ -371,7 +370,7 @@ export default function ItemDetail() {
                 Cancel
               </Button>
               <Button className="flex-1" onClick={handleSendRequest} disabled={createRental.isPending}>
-                {createRental.isPending ? 'Göndərilir...' : 'Send Request'}
+                {createRental.isPending ? 'Submitting...' : 'Send Request'}
               </Button>
             </div>
           </div>

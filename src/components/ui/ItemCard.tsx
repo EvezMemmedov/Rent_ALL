@@ -15,7 +15,7 @@ export function ItemCard({ item }: ItemCardProps) {
   const handleDelete = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (confirm('Bu əşyanı silmək istədiyinizə əminsiniz? (Admin Action)')) {
+    if (confirm('Are you sure you want to delete this item? (Admin Action)')) {
       deleteItem.mutate(item.id);
     }
   };

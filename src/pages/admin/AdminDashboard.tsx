@@ -11,7 +11,6 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const { isAdmin, isAuthenticated, user } = useAuthStore();
 
-  // Qoruyucu yoxlanış - Əgər admin deyilsə login səhifəsinə atır
   useEffect(() => {
     if (!isAuthenticated || !isAdmin) {
       navigate('/login');
@@ -54,9 +53,8 @@ export default function AdminDashboard() {
     },
   ];
 
-  // Əgər hələ yoxlanış gedirsə, boş ekran və ya loading göstər ki, qaçış baş verməsin
   if (!isAuthenticated || !isAdmin) {
-    return null; 
+    return null;
   }
 
   return (
@@ -98,10 +96,10 @@ export default function AdminDashboard() {
               </div>
               <div className="space-y-3">
                 {pendingLoading ? (
-                  <p className="text-muted-foreground text-sm">Yüklənir...</p>
+                  <p className="text-muted-foreground text-sm">Loading...</p>
                 ) : pendingUsers.length === 0 ? (
                   <div className="card-static p-6 text-center">
-                    <p className="text-muted-foreground text-sm">Gözləyən istifadəçi yoxdur</p>
+                    <p className="text-muted-foreground text-sm">No pending users</p>
                   </div>
                 ) : (
                   pendingUsers.slice(0, 3).map((user: any) => (

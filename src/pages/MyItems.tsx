@@ -22,7 +22,7 @@ export default function MyItems() {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm('Bu əşyanı silmək istədiyinizə əminsiniz?')) {
+    if (confirm('Are you sure you want to delete this item?')) {
       deleteItem.mutate(id);
     }
   };
@@ -52,7 +52,7 @@ export default function MyItems() {
           </div>
 
           {isLoading ? (
-            <p className="text-muted-foreground text-center py-16">Yüklənir...</p>
+            <p className="text-muted-foreground text-center py-16">Loading...</p>
           ) : items.length > 0 ? (
             <div className="grid gap-4">
               {items.map((item: any) => (

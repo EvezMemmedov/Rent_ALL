@@ -26,7 +26,7 @@ export default function PendingUsers() {
           </div>
 
           {isLoading ? (
-            <p className="text-muted-foreground text-center py-16">Yüklənir...</p>
+            <p className="text-muted-foreground text-center py-16">Loading...</p>
           ) : pendingUsers.length > 0 ? (
             <div className="space-y-4">
               {pendingUsers.map((user: any) => (

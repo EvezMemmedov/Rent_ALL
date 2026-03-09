@@ -33,7 +33,7 @@ export default function Login() {
 
           {login.isError && (
             <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm text-center">
-              {(login.error as any)?.response?.data?.message || 'Giriş uğursuz oldu.'}
+              {(login.error as any)?.response?.data?.message || 'Login failed.'}
             </div>
           )}
 
@@ -82,7 +82,7 @@ export default function Login() {
             </div>
 
             <Button type="submit" className="w-full" size="lg" disabled={login.isPending}>
-              {login.isPending ? 'Giriş edilir...' : 'Sign in'}
+              {login.isPending ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
 

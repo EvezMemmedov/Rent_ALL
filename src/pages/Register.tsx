@@ -23,7 +23,7 @@ export default function Register() {
   const handleContinue = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      alert('Şifrələr uyğun gəlmir!');
+      alert('Passwords do not match!');
       return;
     }
     setStep('verification');
@@ -155,7 +155,7 @@ export default function Register() {
 
               {register.isError && (
                 <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm text-center">
-                  {(register.error as any)?.response?.data?.message || 'Qeydiyyat uğursuz oldu.'}
+                  {(register.error as any)?.response?.data?.message || 'Registration failed.'}
                 </div>
               )}
 
@@ -203,7 +203,7 @@ export default function Register() {
                 <div className="flex gap-3">
                   <Button type="button" variant="outline" className="flex-1" onClick={() => setStep('info')}>Back</Button>
                   <Button type="submit" className="flex-1" disabled={register.isPending}>
-                    {register.isPending ? 'Göndərilir...' : 'Submit'}
+                    {register.isPending ? 'Submitting...' : 'Submit'}
                   </Button>
                 </div>
               </form>

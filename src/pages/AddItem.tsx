@@ -35,7 +35,7 @@ export default function AddItem() {
     if (files) {
       const newFiles = Array.from(files);
       const newPreviews = newFiles.map(file => URL.createObjectURL(file));
-      
+
       setImageFiles(prev => [...prev, ...newFiles].slice(0, 5));
       setImagePreviews(prev => [...prev, ...newPreviews].slice(0, 5));
     }
@@ -48,22 +48,20 @@ export default function AddItem() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
-      // Əvvəlcə şəkilləri yüklə
       const imageUrls: string[] = [];
       for (const file of imageFiles) {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('type', 'items');
-        
+
         const res = await api.post('/uploads/image', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         imageUrls.push(res.data.url);
       }
 
-      // Sonra item-i yarat
       createItem.mutate(
         {
           title: formData.title,
@@ -76,7 +74,7 @@ export default function AddItem() {
         { onSuccess: () => navigate('/my-items') }
       );
     } catch (error) {
-      console.error('Şəkil yükləmə xətası:', error);
+      console.error('Image upload error:', error);
     }
   };
 
@@ -98,7 +96,7 @@ export default function AddItem() {
 
           {createItem.isError && (
             <div className="mb-6 p-4 rounded-lg bg-destructive/10 text-destructive text-sm">
-              {(createItem.error as any)?.response?.data?.message || 'Xəta baş verdi.'}
+              {(createItem.error as any)?.response?.data?.message || 'Error occurred.'}
             </div>
           )}
 
@@ -177,7 +175,7 @@ export default function AddItem() {
                     type="text"
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    placeholder="Bakı, Nəsimi"
+                    placeholder="Baku, Nasimi"
                     className="input-field"
                     required
                   />
@@ -209,7 +207,7 @@ export default function AddItem() {
                 Cancel
               </Button>
               <Button type="submit" className="flex-1" disabled={createItem.isPending}>
-                {createItem.isPending ? 'Əlavə edilir...' : 'List Item'}
+                {createItem.isPending ? 'Adding...' : 'List Item'}
               </Button>
             </div>
           </form>

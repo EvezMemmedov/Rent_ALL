@@ -12,7 +12,7 @@ export default function TermsOfService() {
             <p>Last updated: March 2026</p>
             <h2>1. Acceptance of Terms</h2>
             <p>By accessing RentAll, you agree to these terms...</p>
-            {/* Məzmunu əlavə et */}
+            {/* Add content here */}
           </div>
         </div>
       </main>

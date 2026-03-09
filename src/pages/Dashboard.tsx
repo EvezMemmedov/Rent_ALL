@@ -35,9 +35,9 @@ export default function Dashboard() {
     : '—';
 
   const stats = [
-    { label: 'Active Rentals', value: String(activeRentals), icon: Calendar, trend: 'Hal-hazırda aktiv' },
-    { label: 'Total Earnings', value: `$${totalEarnings.toFixed(0)}`, icon: DollarSign, trend: 'Tamamlanmış icarələr' },
-    { label: 'Items Listed', value: String(items.length), icon: Package, trend: 'Siyahıya alınmış əşyalar' },
+    { label: 'Active Rentals', value: String(activeRentals), icon: Calendar, trend: 'Active Rentals' },
+    { label: 'Total Earnings', value: `$${totalEarnings.toFixed(0)}`, icon: DollarSign, trend: 'Completed Rentals' },
+    { label: 'Items Listed', value: String(items.length), icon: Package, trend: 'Listed Items' },
     { label: 'Avg Rating', value: avgRating, icon: Star, trend: 'Based on reviews' },
   ];
 
@@ -88,12 +88,12 @@ export default function Dashboard() {
               </div>
               <div className="space-y-3">
                 {rentalsLoading ? (
-                  <p className="text-muted-foreground text-sm">Yüklənir...</p>
+                  <p className="text-muted-foreground text-sm">Loading...</p>
                 ) : rentals.length === 0 ? (
                   <div className="card-static p-6 text-center">
-                    <p className="text-muted-foreground text-sm">Hələ icarə yoxdur</p>
+                    <p className="text-muted-foreground text-sm">No rentals yet</p>
                     <Link to="/browse" className="text-primary text-sm hover:underline mt-2 inline-block">
-                      Əşyalara bax
+                      Browse items
                     </Link>
                   </div>
                 ) : (
@@ -134,12 +134,12 @@ export default function Dashboard() {
               </div>
               <div className="space-y-3">
                 {itemsLoading ? (
-                  <p className="text-muted-foreground text-sm">Yüklənir...</p>
+                  <p className="text-muted-foreground text-sm">Loading...</p>
                 ) : items.length === 0 ? (
                   <div className="card-static p-6 text-center">
-                    <p className="text-muted-foreground text-sm">Hələ əşya yoxdur</p>
+                    <p className="text-muted-foreground text-sm">No items yet</p>
                     <Link to="/add-item" className="text-primary text-sm hover:underline mt-2 inline-block">
-                      Əşya əlavə et
+                      Add item
                     </Link>
                   </div>
                 ) : (

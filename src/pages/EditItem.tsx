@@ -72,7 +72,6 @@ export default function EditItem() {
         e.preventDefault();
 
         try {
-            // Əvvəlcə yeni şəkilləri yüklə
             const uploadedUrls: string[] = [];
             for (const file of imageFiles) {
                 const uploadData = new FormData();
@@ -85,10 +84,8 @@ export default function EditItem() {
                 uploadedUrls.push(res.data.url);
             }
 
-            // Köhnə və yeni şəkilləri birləşdir
             const allImages = [...existingImages, ...uploadedUrls];
 
-            // Item-i yenilə
             updateItem.mutate(
                 {
                     title: formData.title,
@@ -101,7 +98,7 @@ export default function EditItem() {
                 { onSuccess: () => navigate('/my-items') }
             );
         } catch (error) {
-            console.error('Şəkil yükləmə xətası:', error);
+            console.error('Image upload error:', error);
         }
     };
 
@@ -110,7 +107,7 @@ export default function EditItem() {
             <div className="min-h-screen flex flex-col bg-background">
                 <Navbar />
                 <main className="flex-1 flex items-center justify-center">
-                    <p className="text-muted-foreground animate-pulse">Yüklənir...</p>
+                    <p className="text-muted-foreground animate-pulse">Loading...</p>
                 </main>
             </div>
         );
@@ -251,7 +248,7 @@ export default function EditItem() {
                                 Cancel
                             </Button>
                             <Button type="submit" className="flex-1" disabled={updateItem.isPending}>
-                                {updateItem.isPending ? 'Yenilənir...' : 'Save Changes'}
+                                {updateItem.isPending ? 'Updating...' : 'Save Changes'}
                             </Button>
                         </div>
                     </form>
