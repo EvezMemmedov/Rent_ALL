@@ -10,6 +10,19 @@ from app.middleware.decorators import approved_required
 items_bp = Blueprint("items", __name__)
 
 
+@items_bp.get("/stats/categories")
+def get_category_stats():
+    """Kateqoriya üzrə əşya saylarını qaytarır."""
+    from sqlalchemy import func
+    stats = (
+        db.session.query(Item.category, func.count(Item.id))
+        .filter_by(status="available", is_hidden=False)
+        .group_by(Item.category)
+        .all()
+    )
+    return jsonify({cat: count for cat, count in stats}), 200
+
+
 @items_bp.get("")
 def browse_items():
     """Bütün əşyaları gəz — axtarış, filtr, sort dəstəyi ilə."""

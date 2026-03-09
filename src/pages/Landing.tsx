@@ -4,14 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { ItemCard } from '@/components/ui/ItemCard';
-import { useItems } from '@/hooks/useItems';
+import { useItems, useCategoryStats } from '@/hooks/useItems';
 
-const categories = [
-  { icon: Car, label: 'Cars', count: 1240 },
-  { icon: Home, label: 'Houses', count: 856 },
-  { icon: Bike, label: 'Bikes', count: 423 },
-  { icon: Wrench, label: 'Tools', count: 312 },
-  { icon: Smartphone, label: 'Electronics', count: 567 },
+const categoriesList = [
+  { icon: Car, label: 'Cars', key: 'cars' },
+  { icon: Home, label: 'Houses', key: 'houses' },
+  { icon: Bike, label: 'Bikes', key: 'bikes' },
+  { icon: Wrench, label: 'Tools', key: 'tools' },
+  { icon: Smartphone, label: 'Electronics', key: 'electronics' },
 ];
 
 const features = [
@@ -28,17 +28,18 @@ const features = [
   {
     icon: Clock,
     title: 'Flexible Rentals',
-    description: 'Rent by the hour or day. Our system handles availability and scheduling.',
+    description: 'Rent by the day. Our system handles availability and scheduling.',
   },
 ];
 
 export default function Landing() {
   const { data } = useItems({ sortBy: 'newest' });
+  const { data: stats } = useCategoryStats();
   const featuredItems = data?.items?.slice(0, 6) || [];
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       {/* Hero Section */}
       <section className="gradient-bg">
         <div className="page-container py-20 md:py-28">
@@ -49,7 +50,7 @@ export default function Landing() {
               <span className="gradient-text">From Anyone</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl mx-auto">
-              Join thousands of people sharing cars, homes, tools, and more. 
+              Join thousands of people sharing cars, homes, tools, and more.
               List what you own or find what you need.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -77,19 +78,22 @@ export default function Landing() {
             <p className="section-subtitle">Find exactly what you're looking for</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            {categories.map((category) => (
-              <Link 
-                key={category.label}
-                to={`/browse?category=${category.label.toLowerCase()}`}
-                className="card-elevated p-6 text-center group"
-              >
-                <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center mx-auto mb-3 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                  <category.icon className="w-6 h-6" />
-                </div>
-                <h3 className="font-semibold text-foreground mb-1">{category.label}</h3>
-                <p className="text-sm text-muted-foreground">{category.count.toLocaleString()} items</p>
-              </Link>
-            ))}
+            {categoriesList.map((category) => {
+              const count = stats?.[category.key] || 0;
+              return (
+                <Link
+                  key={category.label}
+                  to={`/browse?category=${category.key}`}
+                  className="card-elevated p-6 text-center group"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center mx-auto mb-3 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <category.icon className="w-6 h-6" />
+                  </div>
+                  <h3 className="font-semibold text-foreground mb-1">{category.label}</h3>
+                  <p className="text-sm text-muted-foreground">{count.toLocaleString()} items</p>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>

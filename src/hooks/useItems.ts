@@ -18,6 +18,16 @@ export function useItems(params?: {
   });
 }
 
+export function useCategoryStats() {
+  return useQuery({
+    queryKey: ['category-stats'],
+    queryFn: async () => {
+      const res = await api.get('/items/stats/categories');
+      return res.data;
+    },
+  });
+}
+
 export function useMyItems() {
   return useQuery({
     queryKey: ['my-items'],

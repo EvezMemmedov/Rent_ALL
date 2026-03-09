@@ -17,7 +17,7 @@ export default function HowItWorks() {
     {
       icon: DollarSign,
       title: 'Pay Securely',
-      description: 'Payment is only processed after the owner approves your request.',
+      description: 'Please complete the payment process after speaking with the business owner.',
     },
     {
       icon: Package,
