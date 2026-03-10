@@ -26,9 +26,14 @@ export default function MyRentals() {
   const rentals = data?.rentals || [];
 
   const filteredRentals = rentals.filter((rental: any) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const endDate = new Date(rental.endDate);
+    const isPast = endDate < today;
+
     if (activeTab === 'all') return true;
-    if (activeTab === 'active') return ['pending', 'approved', 'active'].includes(rental.status);
-    if (activeTab === 'completed') return ['completed', 'cancelled', 'rejected'].includes(rental.status);
+    if (activeTab === 'active') return ['pending', 'approved', 'active'].includes(rental.status) && !isPast;
+    if (activeTab === 'completed') return ['completed', 'cancelled', 'rejected'].includes(rental.status) || (rental.status === 'approved' && isPast);
     return true;
   });
 

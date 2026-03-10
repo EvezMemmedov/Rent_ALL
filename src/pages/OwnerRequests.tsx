@@ -33,6 +33,10 @@ export default function OwnerRequests() {
     updateStatus.mutate({ id, status: 'rejected' });
   };
 
+  const handleComplete = (id: number) => {
+    updateStatus.mutate({ id, status: 'completed' });
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
@@ -143,11 +147,19 @@ export default function OwnerRequests() {
                   )}
 
                   {request.status === 'approved' && (
-                    <div className="pt-4 border-t border-border">
+                    <div className="pt-4 border-t border-border flex flex-wrap items-center justify-between gap-3">
                       <p className="text-sm text-success flex items-center gap-2">
                         <Check className="w-4 h-4" />
                         You approved this request
                       </p>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleComplete(request.id)}
+                        disabled={updateStatus.isPending}
+                      >
+                        Mark as Completed
+                      </Button>
                     </div>
                   )}
 
