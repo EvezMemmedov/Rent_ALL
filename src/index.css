@@ -156,6 +156,10 @@
     @apply bg-info/10 text-info;
   }
 
+  .status-completed {
+    @apply bg-warning/10 text-warning;
+  }
+
   .gradient-text {
     @apply bg-clip-text text-transparent;
     background-image: var(--gradient-primary);

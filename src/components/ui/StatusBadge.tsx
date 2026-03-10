@@ -14,7 +14,7 @@ const statusConfig: Record<StatusType, { label: string; className: string }> = {
   requested: { label: 'Requested', className: 'status-pending' },
   rented: { label: 'Rented', className: 'status-rented' },
   returned: { label: 'Returned', className: 'status-approved' },
-  completed: { label: 'Completed', className: 'status-approved' },
+  completed: { label: 'Completed', className: 'status-completed' },
   cancelled: { label: 'Cancelled', className: 'status-rejected' },
 };
 

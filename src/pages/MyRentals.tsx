@@ -94,79 +94,87 @@ export default function MyRentals() {
             <p className="text-muted-foreground text-center py-16">Loading...</p>
           ) : filteredRentals.length > 0 ? (
             <div className="space-y-4">
-              {filteredRentals.map((rental: any) => (
-                <div key={rental.id} className="card-static p-4 md:p-6">
-                  <div className="flex flex-col md:flex-row gap-4">
-                    <Link to={`/items/${rental.itemId}`}>
-                      <img
-                        src={getImageUrl(rental.item?.images?.[0])}
-                        alt={rental.item?.title}
-                        className="w-full md:w-32 h-40 md:h-24 rounded-lg object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/128x96';
-                        }}
-                      />
-                    </Link>
-                    <div className="flex-1">
-                      <div className="flex flex-col md:flex-row md:items-start justify-between gap-2 mb-2">
-                        <div>
-                          <Link to={`/items/${rental.itemId}`}>
-                            <h3 className="font-semibold text-foreground hover:text-primary transition-colors">
-                              {rental.item?.title}
-                            </h3>
-                          </Link>
+              {filteredRentals.map((rental: any) => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const endDate = new Date(rental.endDate);
+                const isPast = endDate < today;
+                const displayStatus = (rental.status === 'approved' && isPast) ? 'completed' : rental.status;
+
+                return (
+                  <div key={rental.id} className="card-static p-4 md:p-6">
+                    <div className="flex flex-col md:flex-row gap-4">
+                      <Link to={`/items/${rental.itemId}`}>
+                        <img
+                          src={getImageUrl(rental.item?.images?.[0])}
+                          alt={rental.item?.title}
+                          className="w-full md:w-32 h-40 md:h-24 rounded-lg object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/128x96';
+                          }}
+                        />
+                      </Link>
+                      <div className="flex-1">
+                        <div className="flex flex-col md:flex-row md:items-start justify-between gap-2 mb-2">
+                          <div>
+                            <Link to={`/items/${rental.itemId}`}>
+                              <h3 className="font-semibold text-foreground hover:text-primary transition-colors">
+                                {rental.item?.title}
+                              </h3>
+                            </Link>
+                          </div>
+                          <StatusBadge status={displayStatus as any} />
                         </div>
-                        <StatusBadge status={rental.status} />
-                      </div>
 
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mt-3">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          {rental.startDate} - {rental.endDate}
-                        </span>
-                        <span className="font-medium text-foreground">${rental.totalPrice} total</span>
-                      </div>
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mt-3">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            {rental.startDate} - {rental.endDate}
+                          </span>
+                          <span className="font-medium text-foreground">${rental.totalPrice} total</span>
+                        </div>
 
-                      {rental.message && (
-                        <p className="text-sm text-muted-foreground mt-2 italic">"{rental.message}"</p>
-                      )}
-
-                      <div className="flex flex-wrap gap-2 mt-4">
-                        {['approved', 'active', 'completed'].includes(rental.status) && !rental.hasReview && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="gap-2"
-                            onClick={() => {
-                              setSelectedRental(rental);
-                              setShowReviewModal(true);
-                            }}
-                          >
-                            <Star className="w-4 h-4" />
-                            Leave Review
-                          </Button>
+                        {rental.message && (
+                          <p className="text-sm text-muted-foreground mt-2 italic">"{rental.message}"</p>
                         )}
-                        {rental.status === 'pending' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="gap-2 text-destructive"
-                            onClick={() => handleCancel(rental.id)}
-                            disabled={updateStatus.isPending}
-                          >
-                            <AlertTriangle className="w-4 h-4" />
-                            Cancel Request
+
+                        <div className="flex flex-wrap gap-2 mt-4">
+                          {['approved', 'active', 'completed'].includes(rental.status) && !rental.hasReview && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="gap-2"
+                              onClick={() => {
+                                setSelectedRental(rental);
+                                setShowReviewModal(true);
+                              }}
+                            >
+                              <Star className="w-4 h-4" />
+                              Leave Review
+                            </Button>
+                          )}
+                          {rental.status === 'pending' && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="gap-2 text-destructive"
+                              onClick={() => handleCancel(rental.id)}
+                              disabled={updateStatus.isPending}
+                            >
+                              <AlertTriangle className="w-4 h-4" />
+                              Cancel Request
+                            </Button>
+                          )}
+                          <Button size="sm" variant="ghost" className="gap-2" onClick={() => navigate(`/messages/${rental.item?.ownerId}`)}>
+                            <MessageCircle className="w-4 h-4" />
+                            Message Owner
                           </Button>
-                        )}
-                        <Button size="sm" variant="ghost" className="gap-2" onClick={() => navigate(`/messages/${rental.item?.ownerId}`)}>
-                          <MessageCircle className="w-4 h-4" />
-                          Message Owner
-                        </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="text-center py-16">
