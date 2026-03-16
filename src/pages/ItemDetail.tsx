@@ -27,8 +27,8 @@ export default function ItemDetail() {
   const calendarDays = eachDayOfInterval({ start: today, end: addDays(today, 30) });
 
   const totalDays = selectedStartDate && selectedEndDate
-    ? Math.ceil((selectedEndDate.getTime() - selectedStartDate.getTime()) / (1000 * 60 * 60 * 24))
-    : 0;
+    ? Math.ceil((selectedEndDate.getTime() - selectedStartDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+    : selectedStartDate ? 1 : 0;
   const totalPrice = totalDays * (item?.pricePerDay || 0);
 
   const getImageUrl = (img: string | undefined) => {
