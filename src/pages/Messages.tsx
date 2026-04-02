@@ -56,8 +56,8 @@ export default function Messages() {
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
 
-      <main className="flex-1 flex flex-col">
-        <div className="page-container max-w-4xl flex-1 flex flex-col py-4">
+      <main className="flex-1 flex flex-col overflow-hidden">
+        <div className="page-container max-w-4xl flex-1 flex flex-col py-4 overflow-hidden">
           {/* Header */}
           <div className="flex items-center gap-4 pb-4 border-b border-border mb-4">
             <Link to="/messages" className="p-2 hover:bg-muted rounded-lg">
