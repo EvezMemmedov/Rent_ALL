@@ -29,7 +29,7 @@ class Review(db.Model):
             "rentalId": self.rental_id,
             "rating": self.rating,
             "comment": self.comment,
-            "createdAt": self.created_at.isoformat() if self.created_at else None,
+            "createdAt": self.created_at.isoformat() + "Z" if self.created_at else None,
             "reviewer": {
                 "id": self.reviewer.id,
                 "name": self.reviewer.name,

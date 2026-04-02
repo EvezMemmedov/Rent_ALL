@@ -42,7 +42,7 @@ class User(db.Model):
             "bio": self.bio,
             "role": self.role,
             "status": self.status,
-            "createdAt": self.created_at.isoformat() if self.created_at else None,
+            "createdAt": self.created_at.isoformat() + "Z" if self.created_at else None,
             "idCardFront": self.id_card_front,
             "idCardBack": self.id_card_back,
         }

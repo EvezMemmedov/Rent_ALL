@@ -41,7 +41,7 @@ class Rental(db.Model):
             "totalPrice": float(self.total_price),
             "status": self.status,
             "message": self.message,
-            "createdAt": self.created_at.isoformat() if self.created_at else None,
+            "createdAt": self.created_at.isoformat() + "Z" if self.created_at else None,
         }
         if include_item and self.item:
             data["item"] = self.item.to_dict()

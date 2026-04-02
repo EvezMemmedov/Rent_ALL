@@ -22,7 +22,7 @@ class Message(db.Model):
             "receiver_id": self.receiver_id,
             "content": self.content,
             "is_read": self.is_read,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "created_at": self.created_at.isoformat() + "Z" if self.created_at else None,
             "sender": {"id": self.sender.id, "name": self.sender.name} if self.sender else None,
             "receiver": {"id": self.receiver.id, "name": self.receiver.name} if self.receiver else None
         }

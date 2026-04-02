@@ -59,7 +59,7 @@ class Item(db.Model):
             "images": self.get_images(),
             "ownerId": self.owner_id,
             "isHidden": self.is_hidden,
-            "createdAt": self.created_at.isoformat() if self.created_at else None,
+            "createdAt": self.created_at.isoformat() + "Z" if self.created_at else None,
         }
 
         # Review statistikası
