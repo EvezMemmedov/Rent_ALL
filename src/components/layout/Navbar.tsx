@@ -1,12 +1,15 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Package, User, LogOut, Menu, X, MessageCircle } from 'lucide-react';
+import { Package, User, LogOut, Menu, X, MessageCircle, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useLogout } from '@/hooks/useAuth';
 import { useAuthStore } from '@/store/authStore';
 import { useUnreadCount } from '@/hooks/useMessages';
+import { useTheme } from '@/hooks/useTheme';
 
 export function Navbar() {
+  const { theme, toggleTheme } = useTheme();
+
   const location = useLocation();
   const logout = useLogout();
   const { isAuthenticated, isAdmin, user } = useAuthStore();
@@ -67,6 +70,11 @@ export function Navbar() {
               </>
             ) : (
               <div className="flex items-center gap-3">
+                {/* Theme Toggle */}
+                <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground" onClick={toggleTheme}>
+                  {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </Button>
+
                 {/* Messages Icon with Badge */}
                 <Link to="/messages" className="relative">
                   <Button variant="ghost" size="icon" className="rounded-full">
@@ -105,6 +113,18 @@ export function Navbar() {
                   <Link to={isAdmin ? "/admin" : "/dashboard"} className="nav-link px-4 py-2 rounded-lg hover:bg-accent">Dashboard</Link>
                   <Link to="/my-items" className="nav-link px-4 py-2 rounded-lg hover:bg-accent">My Items</Link>
                   <Link to="/my-rentals" className="nav-link px-4 py-2 rounded-lg hover:bg-accent">My Rentals</Link>
+
+                  {/* Theme Toggle (Mobile) */}
+                  <button
+                    onClick={toggleTheme}
+                    className="nav-link px-4 py-2 rounded-lg hover:bg-accent flex items-center justify-between w-full text-left"
+                  >
+                    <span className="flex items-center gap-2">
+                      {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                      {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                    </span>
+                  </button>
+
                   <Link to="/messages" className="nav-link px-4 py-2 rounded-lg hover:bg-accent flex items-center justify-between">
                     <span>Messages</span>
                     {unreadCount > 0 && (
