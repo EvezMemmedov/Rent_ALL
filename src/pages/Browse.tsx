@@ -27,6 +27,7 @@ const priceRanges = [
 
 export default function Browse() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchLocation, setSearchLocation] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<ItemCategory | 'all'>('all');
   const [selectedPrice, setSelectedPrice] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
@@ -42,6 +43,7 @@ export default function Browse() {
 
   const { data, isLoading, isError } = useItems({
     search: searchQuery || undefined,
+    location: searchLocation || undefined,
     category: selectedCategory !== 'all' ? selectedCategory : undefined,
     sortBy,
     ...getPriceParams(),
@@ -73,7 +75,13 @@ export default function Browse() {
             </div>
             <div className="relative flex-1 md:max-w-xs">
               <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <input type="text" placeholder="Location" className="input-field pl-11 pr-4" />
+              <input
+                type="text"
+                placeholder="Location"
+                value={searchLocation}
+                onChange={(e) => setSearchLocation(e.target.value)}
+                className="input-field pl-11 pr-4"
+              />
             </div>
             <Button variant="outline" className="gap-2 md:w-auto" onClick={() => setShowFilters(!showFilters)}>
               <SlidersHorizontal className="w-4 h-4" />

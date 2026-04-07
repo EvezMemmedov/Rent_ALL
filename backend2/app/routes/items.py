@@ -28,6 +28,7 @@ def browse_items():
     """Bütün əşyaları gəz — axtarış, filtr, sort dəstəyi ilə."""
     search = request.args.get("search", "").strip()
     category = request.args.get("category", "").strip()
+    location = request.args.get("location", "").strip()
     min_price = request.args.get("minPrice", type=float)
     max_price = request.args.get("maxPrice", type=float)
     sort_by = request.args.get("sortBy", "newest")
@@ -40,6 +41,9 @@ def browse_items():
         query = query.filter(
             Item.title.ilike(f"%{search}%") | Item.description.ilike(f"%{search}%")
         )
+
+    if location:
+        query = query.filter(Item.location.ilike(f"%{location}%"))
 
     if category:
         query = query.filter_by(category=category)

@@ -3,6 +3,7 @@ import api from '@/lib/api';
 
 export function useItems(params?: {
   search?: string;
+  location?: string;
   category?: string;
   minPrice?: number;
   maxPrice?: number;

@@ -16,7 +16,6 @@ export default function Register() {
     confirmPassword: '',
   });
   const [idFront, setIdFront] = useState<File | null>(null);
-  const [idBack, setIdBack] = useState<File | null>(null);
 
   const register = useRegister();
 
@@ -36,7 +35,6 @@ export default function Register() {
       email: formData.email,
       password: formData.password,
       idCardFront: idFront || undefined,
-      idCardBack: idBack || undefined,
     });
   };
 
@@ -175,24 +173,6 @@ export default function Register() {
                       </div>
                     )}
                     <input type="file" accept="image/*" className="hidden" onChange={(e) => setIdFront(e.target.files?.[0] || null)} />
-                  </label>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">ID Card - Back</label>
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-input rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
-                    {idBack ? (
-                      <div className="flex items-center gap-2 text-primary">
-                        <CheckCircle2 className="w-5 h-5" />
-                        <span className="text-sm font-medium">{idBack.name}</span>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                        <Upload className="w-8 h-8" />
-                        <span className="text-sm">Click to upload back of ID</span>
-                      </div>
-                    )}
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => setIdBack(e.target.files?.[0] || null)} />
                   </label>
                 </div>
 
